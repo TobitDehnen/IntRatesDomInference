@@ -22,7 +22,7 @@ n_females <- 10
 # Number of times each dyad interacts
 real_ratio_ints_to_dyad = 3
 # real_steepness of sigmoidal function: larger numbers create steeper hierarchies via: probability A wins = 1 / (1 + exp(-(rank_diff * real_steepness)))
-real_steepness = 0.5
+real_steepness = 1
 
 # Vectors to fill with outputs
 output <- data.frame(run = rep(1:n_sims, each = 4), # simulation number
@@ -99,16 +99,24 @@ for(i in 1:n_sims) {
   output$result[(4*i)] <- mean(ints_obs$inds$ranks_inferred_above_real[which(ints_obs$inds$dominant_female == 1)]) # Dominant females
 }
 
+# interaction-level data
+output_filename <- paste("Outputs/", "n_sims=", n_sims, "_n_males=", n_males, "_n_females=", n_females, 
+                         "_real_ratio_ints_to_dyad=", real_ratio_ints_to_dyad, "_real_steepness=", real_steepness,
+                         ".RData",
+                         sep = "")
 
-# Plot results
-pdf("Figures/Male_aggression_female_dominance_consequences.pdf", height = 7, width = 7) # save
-ggplot(output) +
-  geom_histogram(aes(x = result), bins = 30, fill = "grey60") +
+save(output, file = output_filename)
+
+# Plot and save results
+pdf("Figures/Male_aggression_female_dominance_consequences_0.2_steepness.pdf", height = 5, width = 8) # save
+ggplot(output, aes(result, fill = bias_type)) +
+  geom_histogram(position = "dodge2") +
   theme_linedraw() +
+  scale_fill_manual(values = c("#56B4E9", "#E69F00")) +
   geom_vline(xintercept = 0, colour = "#007052", linetype = "dashed", linewidth = 1) +
-  #scale_x_continuous(limits = c(min(output$result),max(output$result)), n.breaks = 4) +
   labs(x = "Mean Inferred Rank Relative to Real Rank", y = "Frequency") +
-  facet_grid(bias_type ~ female_category)
+  facet_grid(~female_category) +
+  theme(legend.position = "bottom")
 dev.off() # finish
 
 
