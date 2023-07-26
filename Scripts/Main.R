@@ -16,7 +16,6 @@ source("Scripts/Source_2.0.R")
 
 
 
-
 ### PARAMETERS
 
 # Number of simulations
