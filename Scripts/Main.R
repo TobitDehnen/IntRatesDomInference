@@ -131,7 +131,7 @@ output$female_category <- factor(output$female_category, levels = fem_cats)
 
 
 # Interaction-level data
-output_name <- paste(Sys.time, ",n_sims=", n_sims, ",n_males=", n_males, ",n_females=", n_females, ",ratio_ints_to_dyad=", 
+output_name <- paste(Sys.time(), ",n_sims=", n_sims, ",n_males=", n_males, ",n_females=", n_females, ",ratio_ints_to_dyad=", 
                          ratio_ints_to_dyad[1], ",", ratio_ints_to_dyad[2], ",", ratio_ints_to_dyad[3], 
                          ",steepness=", steepness, sep = "")
 
