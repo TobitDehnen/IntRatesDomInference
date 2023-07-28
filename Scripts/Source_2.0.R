@@ -3,9 +3,6 @@
 # simulate 'real' interactions among group members, with winning probability varying 
 # with difference in dominance through a sigmoidal function.
 
-
-# Clear the workspace
-rm(list = ls())
 # Set seed
 set.seed(1)
 
@@ -14,13 +11,11 @@ set.seed(1)
 # Function to generate 'real interactions' for a virtual population
 get.real.ints <- function(n_males = 16, # Number of males
                           n_females = 10, # Number of females
-                          real_ratio_ints_to_dyad = c(9,6,3), # Number of times each MM, MF, FF dyad interacts
+                          n_fem_breed = 3, # Number of females not to be aggressed
+                          ratio_ints_to_dyad = c(9,6,3), # Number of times each MM, MF, FF dyad interacts
                           male_aggro_bias = TRUE, # Whether males don't interact aggresively with subordinate females (TRUE) or if interact same as with other females (FALSE)
-                          real_steepness = 1 # real_steepness of sigmoidal function: larger numbers create steeper hierarchies via: probability A wins = 1 / (1 + exp(-(rank_diff * real_steepness)))
+                          steepness = 1 # steepness of sigmoidal function: larger numbers create steeper hierarchies via: probability A wins = 1 / (1 + exp(-(rank_diff * steepness)))
 ) {
-  
-  # The number of females (half) at the bottom of the hierarchy that are not aggressed by males
-  n_females_no_m_aggro <- round(n_females/2, digits = 0)
   
   # Individuals and their dominance
   inds <- data.frame(ID = LETTERS[1:(n_males+n_females)], # IDs
@@ -37,14 +32,14 @@ get.real.ints <- function(n_males = 16, # Number of males
   # MM
   ints_real_MM <- expand.grid(Ind_A = inds$ID[which(inds$sex == "M")], Ind_B = inds$ID[which(inds$sex == "M")]) # get all combinations
   ints_real_MM <- ints_real_MM[-which(ints_real_MM$Ind_A == ints_real_MM$Ind_B),] # remove self-interactions
-  ints_real_MM <- ints_real_MM[rep(seq_len(nrow(ints_real_MM)), times = real_ratio_ints_to_dyad[1]),] # repeat certain number of times
+  ints_real_MM <- ints_real_MM[rep(seq_len(nrow(ints_real_MM)), times = ratio_ints_to_dyad[1]),] # repeat certain number of times
   # MF
   ints_real_MF <- expand.grid(Ind_A = inds$ID[which(inds$sex == "M")], Ind_B = inds$ID[which(inds$sex == "F")]) # get all combinations
-  ints_real_MF <- ints_real_MF[rep(seq_len(nrow(ints_real_MF)), times = real_ratio_ints_to_dyad[2]),] # repeat certain number of times
+  ints_real_MF <- ints_real_MF[rep(seq_len(nrow(ints_real_MF)), times = ratio_ints_to_dyad[2]),] # repeat certain number of times
   # FF
   ints_real_FF <- expand.grid(Ind_A = inds$ID[which(inds$sex == "F")], Ind_B = inds$ID[which(inds$sex == "F")]) # get all combinations
   ints_real_FF <- ints_real_FF[-which(ints_real_FF$Ind_A == ints_real_FF$Ind_B),] # remove self-interactions
-  ints_real_FF <- ints_real_FF[rep(seq_len(nrow(ints_real_FF)), times = real_ratio_ints_to_dyad[3]),] # repeat certain number of times
+  ints_real_FF <- ints_real_FF[rep(seq_len(nrow(ints_real_FF)), times = ratio_ints_to_dyad[3]),] # repeat certain number of times
   
   # Combine, shuffle and reset rownames
   ints_real <- rbind(ints_real_MM, ints_real_MF, ints_real_FF)
@@ -64,7 +59,7 @@ get.real.ints <- function(n_males = 16, # Number of males
     rank_diff <- inds$dominance[which(inds$ID == Ind_A_tmp)] - inds$dominance[which(inds$ID == Ind_B_tmp)]
     
     # Get probability that A wins
-    p_Ind_A_tmp_wins_this <-   1 / (1 + exp(-(rank_diff * real_steepness)))
+    p_Ind_A_tmp_wins_this <-   1 / (1 + exp(-(rank_diff * steepness)))
     
     # Does A win?
     Ind_A_tmp_won_this <- sample(c(T, F), 1, prob = c(p_Ind_A_tmp_wins_this,1 - p_Ind_A_tmp_wins_this))
@@ -82,13 +77,15 @@ get.real.ints <- function(n_males = 16, # Number of males
   # Remove unnecessary columns
   ints_real <- ints_real[,which(colnames(ints_real) %in% c("winner", "loser"))]
 
-  # Assign which females are dominant
-  inds$dominant_female <- c(rep(NA, times = n_males), rep(1, times = n_females - n_females_no_m_aggro), rep(0, times = n_females_no_m_aggro))
+  # Assign which females breed
+  inds$breeding_female <- NA
+  inds$breeding_female[which(inds$sex == "F")] <- sample(c(rep(1, times = n_fem_breed), rep(0, times = n_females - n_fem_breed)), size = n_females)
+  
   
   # If the males do not aggress the subordinate half of the females
   if(male_aggro_bias) {
     # IDs of females not to be aggressed by males
-    fem_no_m_aggro <- inds$ID[which(inds$dominant_female == 0)]
+    fem_no_m_aggro <- inds$ID[which(inds$breeding_female == 1)]
     # Males
     males <- inds$ID[which(inds$sex == "M")]
     # Remove those interactions
