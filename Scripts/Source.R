@@ -1,14 +1,6 @@
-# Script to:
-# A) Generate a social group, in which individuals linearly differ in dominance, and 
-# simulate 'real' interactions among group members, with winning probability varying 
-# with difference in dominance through a sigmoidal function.
+# Source code
 
-# Set seed
-set.seed(1)
-
-#### FUNCTIONS ####
-
-# Function to generate 'real interactions' for a virtual population
+# Function to generate 'real interactions' for a virtual group
 get.real.ints <- function(n_males = 16, # Number of males
                           n_females = 10, # Number of females
                           n_fem_breed = 3, # Number of females not to be aggressed
@@ -101,6 +93,7 @@ get.real.ints <- function(n_males = 16, # Number of males
   return(list(inds = inds, ints_real = ints_real))
 }
 
+# Function to infer randomised Elo scores from interaction data using the aniDom package
 get.Elo <- function(ints_obs # dataframe holding interactions, containing: ID, winner and loser columns
 ) {
   library(aniDom)

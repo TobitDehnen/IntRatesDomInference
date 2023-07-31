@@ -1,6 +1,6 @@
 # Script to:
-# A) Simulate interactions with certain females receiving no male aggression
-# B) Plot the mean difference in the inferred and real ranks for females at the bottom of the hierarchy that receive no male aggression, for each simulation
+# A) Simulate interactions in sex-stratified animal groups with varying interaction rates between MM, MF and FF dyads as well as within MF dyads
+# B) Plot the effect of variation in MF dyad interaction rates on females' inferred hierarchy positions
 
 ### SET UP
 
@@ -11,12 +11,14 @@ set.seed(1)
 # Packages
 library(aniDom)
 library(ggplot2)
+library(here)
+
 # Source code
-source("Scripts/Source_2.0.R")
+source(here("Scripts", "Source.R"))
 
-# Can load a previously run output if we want to, but saving is not straightforward as uses parameters specified below which may differ to those used to generate the loaded output
-#load("Outputs/n_sims=1000,n_males=16,n_females=10,ratio_ints_to_dyad=9,6,3,steepness=1.RData")
-
+# Can also load a previously run output if we want to, but don't resave this as the title (using below parameters) may not match the dataset
+previous_run <- "n_sims=1000,n_males=16,n_females=10,ratio_ints_to_dyad=9,6,3,steepness=1.RData"
+load(here("Outputs", previous_run))
 
 
 ### PARAMETERS
@@ -141,14 +143,13 @@ output_name <- paste("n_sims=", n_sims, ",n_males=", n_males, ",n_females=", n_f
 
 ### SAVE OUTPUTS ####
 
-save(output, file = paste("Outputs/", output_name, ".RData", sep = ""))
-
+save(output, file = here("Outputs", paste(output_name, ".RData", sep = "")))
 
 
 ### PLOT RESULTS ####
 
 # Save results plot to PDF
-pdf(paste("Figures/", output_name, ".pdf", sep = ""), height = 5, width = 8) # save
+pdf(here("Figures", paste(output_name, ".pdf", sep = "")), height = 5, width = 8) # save
 ggplot(output, aes(result, fill = bias_type)) +
   geom_histogram(position = position_dodge2(preserve = "single")) +
   theme_linedraw(base_size = 15) +
