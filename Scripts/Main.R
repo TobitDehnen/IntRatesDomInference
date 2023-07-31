@@ -15,7 +15,9 @@ library(ggplot2)
 source("Scripts/Source_2.0.R")
 
 # Can load a previously run output if we want to, but saving is not straightforward as uses parameters specified below which may differ to those used to generate the loaded output
-# load("Outputs/n_sims=100,n_males=16,n_females=10,ratio_ints_to_dyad=9,6,3,steepness=1.RData")
+#load("Outputs/n_sims=1000,n_males=16,n_females=10,ratio_ints_to_dyad=9,6,3,steepness=1.RData")
+
+
 
 ### PARAMETERS
 
@@ -84,7 +86,7 @@ for(i in 1:n_sims) {
   # Mean ranks inferred greater than real
   output$result[(4*i)-3] <- mean(ints_obs$inds$ranks_inferred_above_real[which(ints_obs$inds$breeding_female == 1)]) # breeding females
   output$result[(4*i)-2] <- mean(ints_obs$inds$ranks_inferred_above_real[which(ints_obs$inds$breeding_female == 0)]) # non-breeding females
-
+  
   
   
   ### UNBIASED MALES
@@ -131,9 +133,9 @@ output$female_category <- factor(output$female_category, levels = fem_cats)
 
 
 # Interaction-level data
-output_name <- paste(Sys.time(), ",n_sims=", n_sims, ",n_males=", n_males, ",n_females=", n_females, ",ratio_ints_to_dyad=", 
-                         ratio_ints_to_dyad[1], ",", ratio_ints_to_dyad[2], ",", ratio_ints_to_dyad[3], 
-                         ",steepness=", steepness, sep = "")
+output_name <- paste("n_sims=", n_sims, ",n_males=", n_males, ",n_females=", n_females, ",ratio_ints_to_dyad=", 
+                     ratio_ints_to_dyad[1], ",", ratio_ints_to_dyad[2], ",", ratio_ints_to_dyad[3], 
+                     ",steepness=", steepness, sep = "")
 
 
 
@@ -149,10 +151,10 @@ save(output, file = paste("Outputs/", output_name, ".RData", sep = ""))
 pdf(paste("Figures/", output_name, ".pdf", sep = ""), height = 5, width = 8) # save
 ggplot(output, aes(result, fill = bias_type)) +
   geom_histogram(position = position_dodge2(preserve = "single")) +
-  theme_linedraw() +
-  scale_fill_manual(values = c("#56B4E9", "#E69F00"), name = "Males' Interactions with Females") +
+  theme_linedraw(base_size = 15) +
+  scale_fill_manual(values = c("#56B4E9", "#E69F00"), name = "") +
   geom_vline(xintercept = 0, colour = "black", linetype = "dashed", linewidth = 1) +
-  labs(x = "Mean Inferred Rank Relative to Real Rank", y = "Frequency") +
+  labs(x = "Mean Inferred minus Real Rank", y = "Frequency") +
   facet_grid(~female_category) +
   theme(legend.position = "bottom")
 dev.off() # finish

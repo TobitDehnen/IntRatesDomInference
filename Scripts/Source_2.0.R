@@ -24,11 +24,10 @@ get.real.ints <- function(n_males = 16, # Number of males
                                       decreasing = TRUE), # Dominance
                      sex = c(rep("M", times = n_males), rep("F", times = n_females))) # sex
   
-  # Standardise dominance between 0 and no. individuals in group -1, to facilitate comparison of social systems, between metrics and between real and inferred hierarchies
+  # Standardise dominance between 0 and no. individuals in group -1
   inds$dominance <- (inds$dominance - min(inds$dominance)) / (max(inds$dominance) - min(inds$dominance)) * ((n_males+n_females) - 1)
   
   ## Generate real interactions
-  
   # MM
   ints_real_MM <- expand.grid(Ind_A = inds$ID[which(inds$sex == "M")], Ind_B = inds$ID[which(inds$sex == "M")]) # get all combinations
   ints_real_MM <- ints_real_MM[-which(ints_real_MM$Ind_A == ints_real_MM$Ind_B),] # remove self-interactions
