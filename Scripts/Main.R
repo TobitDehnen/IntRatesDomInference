@@ -17,8 +17,8 @@ library(here)
 source(here("Scripts", "Source.R"))
 
 # Can also load a previously run output if we want to, but don't resave this as the title (using below parameters) may not match the dataset
-previous_run <- "n_sims=1000,n_males=16,n_females=10,ratio_ints_to_dyad=9,6,3,steepness=1.RData"
-load(here("Outputs", previous_run))
+#previous_run <- "n_sims=1000,n_males=16,n_females=10,ratio_ints_to_dyad=9,6,3,steepness=1.RData"
+#load(here("Outputs", previous_run))
 
 
 ### PARAMETERS
@@ -31,13 +31,15 @@ n_males <- 16
 # Number of females
 n_females <- 10
 # Number of females not to be aggressed in biased males scenario
-n_fem_breed <-  3
+n_fem_breed <-  5
 # Number of times each MM, MF and FF dyad interacts
 ratio_ints_to_dyad <-  c(9,6,3)
-# Female categories
-fem_cats <- c("Breeding females", "Non-breeding females")
 # steepness of sigmoidal function: larger numbers create steeper hierarchies via: probability A wins = 1 / (1 + exp(-(rank_diff * steepness)))
 steepness <-  1
+
+# Female categories and bias categories
+fem_cats <- c("Breeding females", "Non-breeding females")
+bias_cats <- c("Males interact with all females", "Males interact with non-breeding females only")
 
 
 
@@ -130,12 +132,13 @@ for(i in 1:n_sims) {
   if(i == n_sims) {print(paste("Total Duration:", round(difftime(Sys.time(), start_time, units = "mins")), "minutes"))} # report duration on last run
 }
 
-# Relevel female_category, so plots subordinates on left and dominants on right
+# Relevel for plotting
 output$female_category <- factor(output$female_category, levels = fem_cats)
+output$bias_type <- factor(output$bias_type, levels = bias_cats)
 
 
 # Interaction-level data
-output_name <- paste("n_sims=", n_sims, ",n_males=", n_males, ",n_females=", n_females, ",ratio_ints_to_dyad=", 
+output_name <- paste("n_sims=", n_sims, ",n_males=", n_males, ",n_females=", n_females, ",n_fem_breed=", n_fem_breed, ",ratio_ints_to_dyad=", 
                      ratio_ints_to_dyad[1], ",", ratio_ints_to_dyad[2], ",", ratio_ints_to_dyad[3], 
                      ",steepness=", steepness, sep = "")
 
@@ -149,9 +152,9 @@ save(output, file = here("Outputs", paste(output_name, ".RData", sep = "")))
 ### PLOT RESULTS ####
 
 # Save results plot to PDF
-pdf(here("Figures", paste(output_name, ".pdf", sep = "")), height = 5, width = 8) # save
+pdf(here("Figures", paste(output_name, "_hist", ".pdf", sep = "")), height = 5, width = 8) # save
 ggplot(output, aes(result, fill = bias_type)) +
-  geom_histogram(position = position_dodge2(preserve = "single")) +
+  geom_histogram(position = position_dodge2(padding = 0.2, preserve = "single"), bins = 40) +
   theme_linedraw(base_size = 15) +
   scale_fill_manual(values = c("#56B4E9", "#E69F00"), name = "") +
   geom_vline(xintercept = 0, colour = "black", linetype = "dashed", linewidth = 1) +
@@ -160,4 +163,15 @@ ggplot(output, aes(result, fill = bias_type)) +
   theme(legend.position = "bottom")
 dev.off() # finish
 
-
+# Save results plot to PDF
+pdf(here("Figures", paste(output_name, "_dens", ".pdf", sep = "")), height = 5, width = 8) # save
+ggplot(output, aes(result, colour = bias_type, fill = bias_type)) +
+  geom_vline(xintercept = 0, colour = "black", linetype = "dashed", linewidth = 1) +
+  geom_density(bw = 0.17, alpha = 0.4, linewidth = 1.2) +
+  theme_linedraw(base_size = 15) +
+  scale_fill_manual(values = c("#56B4E9", "#E69F00"), name = "") +
+  scale_colour_manual(values = c("#56B4E9", "#E69F00"), name = "") +
+  labs(x = "Mean Inferred minus Real Rank", y = "Frequency") +
+  facet_grid(~female_category) +
+  theme(legend.position = "bottom")
+dev.off() # finish
