@@ -96,7 +96,13 @@ get.real.ints <- function(n_males = 16, # Number of males
 # Function to infer randomised Elo scores from interaction data using the aniDom package
 get.Elo <- function(ints_obs # dataframe holding interactions, containing: ID, winner and loser columns
 ) {
+  
+  # If don't have packages, install
+  if(!("aniDom" %in% installed.packages()[,"Package"])) {install.packages("aniDom")}
+  
+  # Attach package
   library(aniDom)
+  
   # Calculate Elo scores
   dom_scores <- aniDom::elo_scores(winners = ints_obs$winner, losers = ints_obs$loser, randomise = TRUE, n.rands = 1000)
   # Calculate score means and order
@@ -109,5 +115,27 @@ get.Elo <- function(ints_obs # dataframe holding interactions, containing: ID, w
   dominance_df$order <- 1:nrow(dominance_df)
   dominance_df$method <- "Elo_rand"
   
+  return(dominance_df)
+}
+
+# Function to infer percolation & conductance based dominance hierarchy
+get.perc <- function(ints_obs # dataframe holding interactions, containing: ID, winner and loser columns 
+) {
+  
+  # If don't have packages, install
+  packages_required <- c("Perc", "DynaRankR")
+  for(i in 1:length(packages_required)){
+    if(!(packages_required[i] %in% installed.packages()[,"Package"])) {
+      install.packages(paste(packages_required[i]))
+    }
+  }
+  
+  # Attach packages
+  library(Perc)
+  library(DynaRankR)
+  
+  conductance_matrix <- conductance(edgelist_to_matrix(ints_obs[,1:2],unique(c(ints_obs[,1],ints_obs[,2]))), maxLength = 4) # maxLength 4 is the median of the available indirect path lengths (2-6)
+  simOrders <- simRankOrder(conductance_matrix$p.hat)
+  dominance_df <- data.frame(ID = simOrders$BestSimulatedRankOrder[,'ID'], metric = NA, order = simOrders$BestSimulatedRankOrder[,'ranking'], method = "perc")[order(simOrders$BestSimulatedRankOrder[,2]),]
   return(dominance_df)
 }

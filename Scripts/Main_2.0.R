@@ -25,6 +25,9 @@ source(here("Scripts", "Source_2.0.R"))
 
 # Number of simulations
 n_sims <- 1000
+# Hierarchy inference method, either get.Elo (randomised Elo scores) or get.perc (percolation and conductance method)
+hierarchy_method <- "get.Elo" # OR "get.perc"
+
 # Number of males
 n_males <- 16
 # Number of females
@@ -32,7 +35,7 @@ n_females <- 10
 # Proportion of females not to be aggressed in biased males scenario
 prop_fem_breed <- 0.5
 # Number of times each MM, MF and FF dyad interacts
-ratio_ints_to_dyad <-  c(9,6,3)
+ratio_ints_to_dyad <-  c(18,12,6)
 # steepness of sigmoidal function: larger numbers create steeper hierarchies via: probability A wins = 1 / (1 + exp(-(rank_diff * steepness)))
 steepness <-  1
 # Compare inferred vs real dominance order, among either only females or all group members
@@ -75,11 +78,14 @@ for(i in 1:n_sims) {
     )
     
     # Infer hierarchy from interaction
-    dom <- get.Elo(ints_obs$ints_real)
+    if(hierarchy_method == "get.Elo") {
+      dom <- get.Elo(ints_obs$ints_real) # randomised Elo ratings
+    } else if (hierarchy_method == "get.perc") {
+      dom <- get.perc(ints_obs$ints_real) # Percolation and conductance
+    }
     
-    # Add to original dataframe
+    # Add rank order to original dataframe
     ints_obs$inds$dominance_inferred_order <- dom$order[match(ints_obs$inds$ID, dom$ID)]
-    ints_obs$inds$dominance_inferred_metric <- dom$metric[match(ints_obs$inds$ID, dom$ID)]
     
     # Intra-female order
     ints_obs$inds$dominance_inferred_order_femalesexspecific <- NA
@@ -136,11 +142,12 @@ output$prop_fem_breed <- prop_fem_breed
 output$ratio_ints_to_dyad <- paste(as.character(ratio_ints_to_dyad), collapse = ",")
 output$steepness <- steepness
 output$dom_comp <- dom_comp
+output$hierarchy_method <- hierarchy_method
 
 # Interaction-level data
 output_name <- paste("n_sims=", n_sims, ",n_males=", n_males, ",n_females=", n_females, ",prop_fem_breed=", prop_fem_breed, ",ratio_ints_to_dyad=", 
                      ratio_ints_to_dyad[1], ",", ratio_ints_to_dyad[2], ",", ratio_ints_to_dyad[3], 
-                     ",steepness=", steepness, ",dom_comp=", dom_comp, sep = "")
+                     ",steepness=", steepness, ",dom_comp=", dom_comp, ",hierarchy_method=", hierarchy_method, sep = "")
 
 
 
