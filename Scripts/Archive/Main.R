@@ -24,18 +24,20 @@ source(here("Scripts", "Source.R"))
 ### PARAMETERS
 
 # Number of simulations
-n_sims <- 1000
+n_sims <- 2
 
 # Number of males
 n_males <- 16
 # Number of females
 n_females <- 10
 # Number of females not to be aggressed in biased males scenario
-n_fem_breed <-  5
+prop_fem_breed <- 0.5 # test: 3, 5, 7
 # Number of times each MM, MF and FF dyad interacts
-ratio_ints_to_dyad <-  c(9,6,3)
+ratio_ints_to_MM_MF_FF_dyads <-  c(9,6,3)
 # steepness of sigmoidal function: larger numbers create steeper hierarchies via: probability A wins = 1 / (1 + exp(-(rank_diff * steepness)))
-steepness <-  1
+steepness <-  1 # test: 0.5, 1, 3
+# Compare inferred vs real dominance order either only within females or in entire hierarchy
+dom_comp <- "female" # or "entire"
 
 # Female categories and bias categories
 fem_cats <- c("Breeding females", "Non-breeding females")
@@ -63,7 +65,7 @@ for(i in 1:n_sims) {
   # Generate 'real interactions' for a virtual population
   ints_obs <- get.real.ints(n_males = n_males, # Number of males
                             n_females = n_females, # Number of females
-                            n_fem_breed = n_fem_breed, # Number of females not to be aggressed
+                            prop_fem_breed = prop_fem_breed, # Proportion of females not to be aggressed
                             ratio_ints_to_dyad = ratio_ints_to_dyad, # Number of times each  MM, MF and FF dyad interacts
                             male_aggro_bias = male_aggro_bias, # Whether males don't interact aggresively with subordinate females (TRUE) or if interact same as with other females (FALSE)
                             steepness = steepness # steepness of sigmoidal function: larger numbers create steeper hierarchies via: probability A wins = 1 / (1 + exp(-(rank_diff * steepness)))
@@ -76,20 +78,50 @@ for(i in 1:n_sims) {
   ints_obs$inds$dominance_inferred_order <- dom$order[match(ints_obs$inds$ID, dom$ID)]
   ints_obs$inds$dominance_inferred_metric <- dom$metric[match(ints_obs$inds$ID, dom$ID)]
   
+  # Intra-female order
+  ints_obs$inds$dominance_inferred_order_femalesexspecific <- NA
+  ints_obs$inds$dominance_real_order_femalesexspecific <- NA
+  ints_obs$inds[which(ints_obs$inds$sex == "F"),]$dominance_inferred_order_femalesexspecific <- order(ints_obs$inds[which(ints_obs$inds$sex == "F"),]$dominance_inferred_order)
+  ints_obs$inds[which(ints_obs$inds$sex == "F"),]$dominance_real_order_femalesexspecific <- 1:nrow(ints_obs$inds[which(ints_obs$inds$sex == "F"),]) 
+  
+  
   # Compare inferred to real hierarchy
   # New column to fill
   ints_obs$inds$ranks_inferred_above_real <- NA
-  for(j in 1:nrow(ints_obs$inds)) {
-    # If female
-    if(ints_obs$inds$sex[j] == "F") {
-      # Ranks
-      ints_obs$inds$ranks_inferred_above_real[j] <- j - ints_obs$inds$dominance_inferred_order[j]
-    }
+  if(dom_comp == "female") {
+    for(j in 1:nrow(ints_obs$inds)) {
+      # If female
+      if(ints_obs$inds$sex[j] == "F") {
+        # Ranks
+        ints_obs$inds$ranks_inferred_above_real[j] <- ints_obs$inds$dominance_real_order_femalesexspecific[j] - ints_obs$inds$dominance_inferred_order_femalesexspecific[j]
+      }
+    } 
+  } else if (dom_comp == "entire") {
+    for(j in 1:nrow(ints_obs$inds)) {
+      # If female
+      if(ints_obs$inds$sex[j] == "F") {
+        # Ranks
+        ints_obs$inds$ranks_inferred_above_real[j] <- ints_obs$inds$dominance_real_order[j] - ints_obs$inds$dominance_inferred_order[j]
+      }
+    } 
   }
   
   # Mean ranks inferred greater than real
   output$result[(4*i)-3] <- mean(ints_obs$inds$ranks_inferred_above_real[which(ints_obs$inds$breeding_female == 1)]) # breeding females
   output$result[(4*i)-2] <- mean(ints_obs$inds$ranks_inferred_above_real[which(ints_obs$inds$breeding_female == 0)]) # non-breeding females
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   
   
   
@@ -99,7 +131,8 @@ for(i in 1:n_sims) {
   # Generate 'real interactions' for a virtual population
   ints_obs <- get.real.ints(n_males = n_males, # Number of males
                             n_females = n_females, # Number of females
-                            ratio_ints_to_dyad = ratio_ints_to_dyad, # Number of times each dyad interacts
+                            prop_fem_breed = prop_fem_breed, # Proportion of females not to be aggressed
+                            ratio_ints_to_dyad = ratio_ints_to_dyad, # Number of times each  MM, MF and FF dyad interacts
                             male_aggro_bias = male_aggro_bias, # Whether males don't interact aggresively with subordinate females (TRUE) or if interact same as with other females (FALSE)
                             steepness = steepness # steepness of sigmoidal function: larger numbers create steeper hierarchies via: probability A wins = 1 / (1 + exp(-(rank_diff * steepness)))
   )
@@ -138,7 +171,7 @@ output$bias_type <- factor(output$bias_type, levels = bias_cats)
 
 
 # Interaction-level data
-output_name <- paste("n_sims=", n_sims, ",n_males=", n_males, ",n_females=", n_females, ",n_fem_breed=", n_fem_breed, ",ratio_ints_to_dyad=", 
+output_name <- paste("n_sims=", n_sims, ",n_males=", n_males, ",n_females=", n_females, ",prop_fem_breed=", prop_fem_breed, ",ratio_ints_to_dyad=", 
                      ratio_ints_to_dyad[1], ",", ratio_ints_to_dyad[2], ",", ratio_ints_to_dyad[3], 
                      ",steepness=", steepness, sep = "")
 

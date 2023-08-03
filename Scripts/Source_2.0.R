@@ -3,7 +3,7 @@
 # Function to generate 'real interactions' for a virtual group
 get.real.ints <- function(n_males = 16, # Number of males
                           n_females = 10, # Number of females
-                          n_fem_breed = 3, # Number of females not to be aggressed
+                          prop_fem_breed = 0.5, # Proportion of females not to be aggressed
                           ratio_ints_to_dyad = c(9,6,3), # Number of times each MM, MF, FF dyad interacts
                           male_aggro_bias = TRUE, # Whether males don't interact aggresively with subordinate females (TRUE) or if interact same as with other females (FALSE)
                           steepness = 1 # steepness of sigmoidal function: larger numbers create steeper hierarchies via: probability A wins = 1 / (1 + exp(-(rank_diff * steepness)))
@@ -67,10 +67,10 @@ get.real.ints <- function(n_males = 16, # Number of males
   
   # Remove unnecessary columns
   ints_real <- ints_real[,which(colnames(ints_real) %in% c("winner", "loser"))]
-
+  
   # Assign which females breed
   inds$breeding_female <- NA
-  inds$breeding_female[which(inds$sex == "F")] <- sample(c(rep(1, times = n_fem_breed), rep(0, times = n_females - n_fem_breed)), size = n_females)
+  inds$breeding_female[which(inds$sex == "F")] <- sample(c(rep(1, times = n_females * prop_fem_breed), rep(0, times = n_females - (n_females * prop_fem_breed))), size = n_females)
   
   
   # If the males do not aggress the subordinate half of the females
