@@ -3,36 +3,66 @@
 # Function to generate 'real interactions' for a virtual group
 get.real.ints <- function(n_males = 16, # Number of males
                           n_females = 10, # Number of females
-                          prop_fem_breed = 0.5, # Proportion of females not to be aggressed
+                          prop_fem_preferred = 0.5, # Proportion of females not to be aggressed
                           ratio_ints_to_dyad = c(9,6,3), # Number of times each MM, MF, FF dyad interacts
                           male_aggro_bias = TRUE, # Whether males don't interact aggresively with subordinate females (TRUE) or if interact same as with other females (FALSE)
                           steepness = 1 # steepness of sigmoidal function: larger numbers create steeper hierarchies via: probability A wins = 1 / (1 + exp(-(rank_diff * steepness)))
 ) {
   
-  # Individuals and their dominance
+  # Generate individuals and their dominance
   inds <- data.frame(ID = LETTERS[1:(n_males+n_females)], # IDs
                      dominance = sort(c(rnorm((n_males), mean = 0, sd = 1), # distribution higher for biomdal (males and females)
                                         rnorm((n_females), mean = -4, sd = 1)), # distribution lower for bimodal (males and females)
                                       decreasing = TRUE), # Dominance
                      sex = c(rep("M", times = n_males), rep("F", times = n_females))) # sex
-  
   # Standardise dominance between 0 and no. individuals in group -1
-  inds$dominance <- (inds$dominance - min(inds$dominance)) / (max(inds$dominance) - min(inds$dominance)) * ((n_males+n_females) - 1)
+  inds$dominance <- (inds$dominance - min(inds$dominance)) / (max(inds$dominance) - min(inds$dominance)) * ((n_males + n_females) - 1)
   
-  ## Generate real interactions
-  # MM
+  
+  ### Assign which females are oreferred
+  inds$preferred_female <- NA
+  inds$preferred_female[which(inds$sex == "F")] <- sample(c(rep(1, times = n_females * prop_fem_preferred), rep(0, times = n_females - (n_females * prop_fem_preferred))), size = n_females)
+  
+  
+  ### Generate interactions 
+  ## MM - same irrespective of male-female aggression scenario
   ints_real_MM <- expand.grid(Ind_A = inds$ID[which(inds$sex == "M")], Ind_B = inds$ID[which(inds$sex == "M")]) # get all combinations
   ints_real_MM <- ints_real_MM[-which(ints_real_MM$Ind_A == ints_real_MM$Ind_B),] # remove self-interactions
   ints_real_MM <- ints_real_MM[rep(seq_len(nrow(ints_real_MM)), times = ratio_ints_to_dyad[1]),] # repeat certain number of times
-  # MF
-  ints_real_MF <- expand.grid(Ind_A = inds$ID[which(inds$sex == "M")], Ind_B = inds$ID[which(inds$sex == "F")]) # get all combinations
-  ints_real_MF <- ints_real_MF[rep(seq_len(nrow(ints_real_MF)), times = ratio_ints_to_dyad[2]),] # repeat certain number of times
-  # FF
-  ints_real_FF <- expand.grid(Ind_A = inds$ID[which(inds$sex == "F")], Ind_B = inds$ID[which(inds$sex == "F")]) # get all combinations
-  ints_real_FF <- ints_real_FF[-which(ints_real_FF$Ind_A == ints_real_FF$Ind_B),] # remove self-interactions
-  ints_real_FF <- ints_real_FF[rep(seq_len(nrow(ints_real_FF)), times = ratio_ints_to_dyad[3]),] # repeat certain number of times
   
-  # Combine, shuffle and reset rownames
+  if(male_aggro_bias) {
+    ## MF - with non-preferred only, where aggression is redirected from preferred to non-preferred
+    ints_real_MF <- expand.grid(Ind_A = inds$ID[which(inds$sex == "M")], Ind_B = inds$ID[which(inds$sex == "F" & inds$preferred_female == 0)]) # get all combinations
+    ints_real_MF <- ints_real_MF[rep(seq_len(nrow(ints_real_MF)), times = round((ratio_ints_to_dyad[2]) * (1 / prop_fem_preferred)), digits = 0),] # redirected aggression
+    
+    ## FF
+    # within-categories dyads interact at the same rate as in the unbiased scenario, between-category dyads interact half as much
+    ints_real_FF <- expand.grid(Ind_A = inds$ID[which(inds$sex == "F")], Ind_B = inds$ID[which(inds$sex == "F")]) # get all combinations
+    ints_real_FF <- ints_real_FF[-which(ints_real_FF$Ind_A == ints_real_FF$Ind_B),] # remove self-interactions
+    ints_real_FF$Ind_A_status <- inds$preferred_female[match(ints_real_FF$Ind_A, inds$ID)] # add A's status
+    ints_real_FF$Ind_B_status <- inds$preferred_female[match(ints_real_FF$Ind_B, inds$ID)] # add B's status
+    
+    # Separate out within- and between-category interactions: within category dyads interact as much as all FF dyads as in unbiased scenario, between category dyads interact half as much
+    ints_real_FF_same_category <- ints_real_FF[which(ints_real_FF$Ind_A_status == ints_real_FF$Ind_B_status),] # same category dyads
+    ints_real_FF_different_category <- ints_real_FF[which(ints_real_FF$Ind_A_status != ints_real_FF$Ind_B_status),] # opposite category dyads 
+    ints_real_FF_same_category <- ints_real_FF_same_category[rep(seq_len(nrow(ints_real_FF_same_category)), times = ratio_ints_to_dyad[3]),] # same as in unbiased
+    ints_real_FF_different_category <- ints_real_FF_different_category[rep(seq_len(nrow(ints_real_FF_different_category)), times = ratio_ints_to_dyad[3] / 2),] # half as many interactions
+    
+    # Recombine within- and between-category interactions & remove superfluous columns
+    ints_real_FF <- rbind(ints_real_FF_same_category,ints_real_FF_different_category )
+    ints_real_FF <- ints_real_FF[,which(colnames(ints_real_FF) %in% c("Ind_A", "Ind_B"))]
+    
+  } else if (male_aggro_bias == FALSE) {
+    ## MF
+    ints_real_MF <- expand.grid(Ind_A = inds$ID[which(inds$sex == "M")], Ind_B = inds$ID[which(inds$sex == "F")]) # get all combinations
+    ints_real_MF <- ints_real_MF[rep(seq_len(nrow(ints_real_MF)), times = ratio_ints_to_dyad[2]),] # repeat certain number of times
+    ## FF
+    ints_real_FF <- expand.grid(Ind_A = inds$ID[which(inds$sex == "F")], Ind_B = inds$ID[which(inds$sex == "F")]) # get all combinations
+    ints_real_FF <- ints_real_FF[-which(ints_real_FF$Ind_A == ints_real_FF$Ind_B),] # remove self-interactions
+    ints_real_FF <- ints_real_FF[rep(seq_len(nrow(ints_real_FF)), times = ratio_ints_to_dyad[3]),] # repeat certain number of times
+  }
+  
+  ## Combine, shuffle and reset rownames
   ints_real <- rbind(ints_real_MM, ints_real_MF, ints_real_FF)
   ints_real <- ints_real[sample(nrow(ints_real)),]
   rownames(ints_real) <- 1:nrow(ints_real)
@@ -67,27 +97,6 @@ get.real.ints <- function(n_males = 16, # Number of males
   
   # Remove unnecessary columns
   ints_real <- ints_real[,which(colnames(ints_real) %in% c("winner", "loser"))]
-  
-  # Assign which females breed
-  inds$breeding_female <- NA
-  inds$breeding_female[which(inds$sex == "F")] <- sample(c(rep(1, times = n_females * prop_fem_breed), rep(0, times = n_females - (n_females * prop_fem_breed))), size = n_females)
-  
-  
-  # If the males do not aggress the subordinate half of the females
-  if(male_aggro_bias) {
-    # IDs of females not to be aggressed by males
-    fem_no_m_aggro <- inds$ID[which(inds$breeding_female == 1)]
-    # Males
-    males <- inds$ID[which(inds$sex == "M")]
-    # Remove those interactions
-    ints_real <- ints_real[-which(
-      ((ints_real$winner %in% males) & # winner is male
-         ints_real$loser %in% fem_no_m_aggro) # loser is a female is not to interact with males
-      | # OR
-        ((ints_real$winner %in% fem_no_m_aggro) & # winner is female not to interact with males
-           ints_real$loser %in% males) # loser is a male
-    ),] 
-  }
   
   # Return simulated interactions
   return(list(inds = inds, ints_real = ints_real))

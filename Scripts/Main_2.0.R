@@ -1,6 +1,7 @@
 # Script to:
-# A) Simulate interactions in sex-stratified animal groups with varying interaction rates between MM, MF and FF dyads as well as within MF dyads
-# B) Plot the effect of variation in MF dyad interaction rates on females' inferred hierarchy positions
+# A) Simulate interactions in sex-stratified animal groups with either unbiased male interactions or males  being tolerant of preferred females (redirecting aggression
+# to non-preferred females, which also interact less with preferred females as a consequence of not being tolerated (e.g. on food patches))
+# B) Plot the effect on females' inferred hierarchy positions
 
 ### SET UP
 
@@ -8,8 +9,7 @@
 rm(list = ls())
 # Set seed
 set.seed(1)
-# Packages
-library(aniDom)
+# Packages not in functions
 library(ggplot2)
 library(here)
 
@@ -17,14 +17,14 @@ library(here)
 source(here("Scripts", "Source_2.0.R"))
 
 # Can also load a previously run output if we want to, but don't resave this as the title (using below parameters) may not match the dataset
-#previous_run <- "n_sims=1000,n_males=16,n_females=10,ratio_ints_to_dyad=9,6,3,steepness=1.RData"
+#previous_run <- "n_sims=1000,n_males=16,n_females=10,prop_fem_preferred=0.5,ratio_ints_to_dyad=9,6,3,steepness=1,dom_comp=female.RData"
 #load(here("Outputs", previous_run))
 
 
 ### PARAMETERS THAT CAN BE PLAYED WITH
 
 # Number of simulations
-n_sims <- 1000
+n_sims <- 500
 # Hierarchy inference method, either get.Elo (randomised Elo scores) or get.perc (percolation and conductance method)
 hierarchy_method <- "get.Elo" # OR "get.perc"
 
@@ -32,10 +32,10 @@ hierarchy_method <- "get.Elo" # OR "get.perc"
 n_males <- 16
 # Number of females
 n_females <- 10
-# Proportion of females not to be aggressed in biased males scenario
-prop_fem_breed <- 0.5
-# Number of times each MM, MF and FF dyad interacts
-ratio_ints_to_dyad <-  c(18,12,6)
+# Proportion of females assigned as preferred
+prop_fem_preferred <- 0.5
+# Number of times each MM, MF and FF dyad interacts in unbiased scenario; in the biased scenario only MF dyads involving non-preferred females interact, and FF dyads interact half as much when not of the same preference category
+ratio_ints_to_dyad <-  c(12,8,4)
 # steepness of sigmoidal function: larger numbers create steeper hierarchies via: probability A wins = 1 / (1 + exp(-(rank_diff * steepness)))
 steepness <-  1
 # Compare inferred vs real dominance order, among either only females or all group members
@@ -45,9 +45,9 @@ dom_comp <- "female" # or "entire"
 ### PARAMETERS TO KEEP THE SAME
 
 # Female categories
-fem_cats <- c("Breeding Females", "Non-Breeding Females")
+fem_cats <- c("Preferred Females", "Non-preferred Females")
 # Male interaction bias categories
-bias_cats <- c("Males interact with all females", "Males interact with non-breeding females only")
+bias_cats <- c("Males tolerate all females equally", "Males tolerate preferred females only")
 
 
 
@@ -71,7 +71,7 @@ for(i in 1:n_sims) {
     # Generate 'real interactions' for a virtual population
     ints_obs <- get.real.ints(n_males = n_males, # Number of males
                               n_females = n_females, # Number of females
-                              prop_fem_breed = prop_fem_breed, # Proportion of females not to be aggressed
+                              prop_fem_preferred = prop_fem_preferred, # Proportion of females not to be aggressed
                               ratio_ints_to_dyad = ratio_ints_to_dyad, # Number of times each  MM, MF and FF dyad interacts
                               male_aggro_bias = male_aggro_bias, # Whether males don't interact aggresively with subordinate females (TRUE) or if interact same as with other females (FALSE)
                               steepness = steepness # steepness of sigmoidal function: larger numbers create steeper hierarchies via: probability A wins = 1 / (1 + exp(-(rank_diff * steepness)))
@@ -116,11 +116,11 @@ for(i in 1:n_sims) {
     
     # Assign results
     if(male_aggro_bias == FALSE) { # Males interact with all females
-      output$result[(4*i)-3] <- mean(ints_obs$inds$ranks_inferred_above_real[which(ints_obs$inds$breeding_female == 1)]) # breeding females
-      output$result[(4*i)-2] <- mean(ints_obs$inds$ranks_inferred_above_real[which(ints_obs$inds$breeding_female == 0)]) # non-breeding females 
-    } else if (male_aggro_bias == TRUE) { # Males interact with non-breeding females only
-      output$result[(4*i)-1] <- mean(ints_obs$inds$ranks_inferred_above_real[which(ints_obs$inds$breeding_female == 1)]) # breeding females
-      output$result[(4*i)] <- mean(ints_obs$inds$ranks_inferred_above_real[which(ints_obs$inds$breeding_female == 0)]) # non-breeding females
+      output$result[(4*i)-3] <- mean(ints_obs$inds$ranks_inferred_above_real[which(ints_obs$inds$preferred_female == 1)]) # preferred females
+      output$result[(4*i)-2] <- mean(ints_obs$inds$ranks_inferred_above_real[which(ints_obs$inds$preferred_female == 0)]) # non-preferred females 
+    } else if (male_aggro_bias == TRUE) { # Males interact with non-preferred females only
+      output$result[(4*i)-1] <- mean(ints_obs$inds$ranks_inferred_above_real[which(ints_obs$inds$preferred_female == 1)]) # preferred females
+      output$result[(4*i)] <- mean(ints_obs$inds$ranks_inferred_above_real[which(ints_obs$inds$preferred_female == 0)]) # non-preferred females
     }
   }
   
@@ -138,14 +138,14 @@ output$bias_type <- factor(output$bias_type, levels = bias_cats)
 output$n_sims <- n_sims
 output$n_males <- n_males
 output$n_females <- n_females
-output$prop_fem_breed <- prop_fem_breed
+output$prop_fem_preferred <- prop_fem_preferred
 output$ratio_ints_to_dyad <- paste(as.character(ratio_ints_to_dyad), collapse = ",")
 output$steepness <- steepness
 output$dom_comp <- dom_comp
 output$hierarchy_method <- hierarchy_method
 
 # Interaction-level data
-output_name <- paste("n_sims=", n_sims, ",n_males=", n_males, ",n_females=", n_females, ",prop_fem_breed=", prop_fem_breed, ",ratio_ints_to_dyad=", 
+output_name <- paste("n_sims=", n_sims, ",n_males=", n_males, ",n_females=", n_females, ",prop_fem_preferred=", prop_fem_preferred, ",ratio_ints_to_dyad=", 
                      ratio_ints_to_dyad[1], ",", ratio_ints_to_dyad[2], ",", ratio_ints_to_dyad[3], 
                      ",steepness=", steepness, ",dom_comp=", dom_comp, ",hierarchy_method=", hierarchy_method, sep = "")
 
@@ -156,22 +156,11 @@ output_name <- paste("n_sims=", n_sims, ",n_males=", n_males, ",n_females=", n_f
 save(output, file = here("Outputs", paste(output_name, ".RData", sep = "")))
 
 
+
 ### PLOT RESULTS ####
 
 # Save results plot to PDF
-#pdf(here("Figures", paste(output_name, "_hist", ".pdf", sep = "")), height = 5, width = 8) # save
-#ggplot(output, aes(result, fill = bias_type)) +
-#  geom_histogram(position = position_dodge2(padding = 0.2, preserve = "single"), bins = 40) +
-#  theme_linedraw(base_size = 15) +
-#  scale_fill_manual(values = c("#56B4E9", "#E69F00"), name = "") +
-#  geom_vline(xintercept = 0, colour = "black", linetype = "dashed", linewidth = 1) +
-#  labs(x = "Mean Inferred minus Real Rank", y = "Frequency") +
-#  facet_grid(~female_category) +
-#  theme(legend.position = "bottom")
-#dev.off() # finish
-
-# Save results plot to PDF
-pdf(here("Figures", paste(output_name, "_dens", ".pdf", sep = "")), height = 5, width = 8) # save
+pdf(here("Figures", paste(output_name, ".pdf", sep = "")), height = 5, width = 8) # save
 ggplot(output, aes(result, colour = bias_type, fill = bias_type)) +
   geom_vline(xintercept = 0, colour = "black", linetype = "dashed", linewidth = 1) +
   geom_density(bw = 0.17, alpha = 0.4, linewidth = 1.2) +
