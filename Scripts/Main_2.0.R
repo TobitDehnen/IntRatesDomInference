@@ -17,7 +17,7 @@ library(here)
 source(here("Scripts", "Source_2.0.R"))
 
 # Can also load a previously run output if we want to, but don't resave this as the title (using below parameters) may not match the dataset
-#previous_run <- "n_sims=1000,n_males=16,n_females=10,prop_fem_breeding=0.5,ratio_ints_to_dyad=9,6,3,steepness=1,dom_comp=female.RData"
+#previous_run <- "n_sims=500,n_males=16,n_females=10,prop_fem_breeding=0.5,ratio_ints_to_dyad=12,8,4,steepness=1,dom_comp=female,hierarchy_method=get.perc.RData"
 #load(here("Outputs", previous_run))
 
 
