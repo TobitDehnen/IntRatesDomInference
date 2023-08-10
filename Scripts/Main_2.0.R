@@ -24,22 +24,22 @@ source(here("Scripts", "Source_2.0.R"))
 ### PARAMETERS THAT CAN BE PLAYED WITH
 
 # Number of simulations
-n_sims <- 500
+n_sims <- 500 # positive integer
 # Hierarchy inference method, either get.Elo (randomised Elo scores) or get.perc (percolation and conductance method)
-hierarchy_method <- "get.Elo" # OR "get.perc"
+hierarchy_method <- "get.Elo" # get.Elo" OR "get.perc"
 
 # Number of males
-n_males <- 16
+n_males <- 16 # positive integer
 # Number of females
-n_females <- 10
+n_females <- 10 # positive integer
 # Proportion of females assigned as breeding
-prop_fem_breeding <- 0.5
+prop_fem_breeding <- 0.5 # 0-1
 # Number of times each MM, MF and FF dyad interacts in unbiased scenario; in the biased scenario only MF dyads involving non-breeding females interact, and FF dyads interact half as much when not of the same preference category
-ratio_ints_to_dyad <-  c(12,8,4)
+ratio_ints_to_dyad <-  c(12,8,4) # three integers, last one should be an even number (as it's divided by 2 in the biased scenario)
 # steepness of sigmoidal function: larger numbers create steeper hierarchies via: probability A wins = 1 / (1 + exp(-(rank_diff * steepness)))
-steepness <- 1
+steepness <- 1 # positive number
 # Compare inferred vs real dominance order, among either only females or all group members
-dom_comp <- "female" # or "entire"
+dom_comp <- "female" # "female  OR "entire"
 
 
 
