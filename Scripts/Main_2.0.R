@@ -37,7 +37,7 @@ prop_fem_breeding <- 0.5
 # Number of times each MM, MF and FF dyad interacts in unbiased scenario; in the biased scenario only MF dyads involving non-breeding females interact, and FF dyads interact half as much when not of the same preference category
 ratio_ints_to_dyad <-  c(12,8,4)
 # steepness of sigmoidal function: larger numbers create steeper hierarchies via: probability A wins = 1 / (1 + exp(-(rank_diff * steepness)))
-steepness <-  1
+steepness <- 1
 # Compare inferred vs real dominance order, among either only females or all group members
 dom_comp <- "female" # or "entire"
 
