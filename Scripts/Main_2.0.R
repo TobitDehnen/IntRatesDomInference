@@ -42,16 +42,13 @@ steepness <-  1
 dom_comp <- "female" # or "entire"
 
 
-### PARAMETERS TO KEEP THE SAME
+
+### RUN SIMULATION ####
 
 # Female categories
 fem_cats <- c("Breeding Females", "Non-breeding Females")
 # Male interaction bias categories
 bias_cats <- c("Males tolerate all females equally", "Males tolerate breeding females only")
-
-
-
-### RUN SIMULATION ####
 
 # Dataframe for rank results
 output <- data.frame(run = rep(1:n_sims, each = 4), # simulation number
