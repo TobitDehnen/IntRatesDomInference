@@ -17,11 +17,12 @@ A <- ggplot(output_ELO[which(output_ELO$female_category == "Breeding Females"),]
   theme_linedraw(base_size = 12) +
   scale_x_continuous(limits = c(-1.3,1.3)) +
   scale_y_continuous(limits = c(0,1.7)) +
-  scale_fill_manual(values = c("#56B4E9", "#E69F00"), name = "") +
-  scale_colour_manual(values = c("#56B4E9", "#E69F00"), name = "") +
+  scale_fill_manual(values = c("#56B4E9", "#E69F00", "black"), name = "") +
+  scale_colour_manual(values = c("black", "#56B4E9", "#E69F00"), name = "") +
   labs(x = "", y = "Frequency") +
   theme(axis.text.x = element_blank(),
-        axis.title.x = element_blank())
+        axis.title.x = element_blank()) + 
+  geom_text(size = 4, aes(x = 0.8, y = 1.6, label = "Rand. Elo:\n Breeding females", colour = "black"))
 # non-breeders
 B <- ggplot(output_ELO[which(output_ELO$female_category == "Non-breeding Females"),], aes(result, colour = bias_type, fill = bias_type)) +
   geom_vline(xintercept = 0, colour = "black", linewidth = 1) +
@@ -29,13 +30,14 @@ B <- ggplot(output_ELO[which(output_ELO$female_category == "Non-breeding Females
   theme_linedraw(base_size = 12) +
   scale_x_continuous(limits = c(-1.3,1.3)) +
   scale_y_continuous(limits = c(0,1.7)) +
-  scale_fill_manual(values = c("#56B4E9", "#E69F00"), name = "") +
-  scale_colour_manual(values = c("#56B4E9", "#E69F00"), name = "") +
+  scale_fill_manual(values = c("#56B4E9", "#E69F00", "black"), name = "") +
+  scale_colour_manual(values = c("black", "#56B4E9", "#E69F00"), name = "") +
   labs(x = "", y = "") +
   theme(axis.text.x = element_blank(),
         axis.title.x = element_blank(),
         axis.text.y = element_blank(),
-        axis.title.y = element_blank())
+        axis.title.y = element_blank()) + 
+  geom_text(size = 4, aes(x = 0.8, y = 1.6, label = "Rand. Elo:\n Non-breeding females", colour = "black"))
 
 ### PERC
 # breeders
@@ -45,9 +47,10 @@ C <- ggplot(output_PERC[which(output_PERC$female_category == "Breeding Females")
   theme_linedraw(base_size = 12) +
   scale_x_continuous(limits = c(-1.3,1.3)) +
   scale_y_continuous(limits = c(0,1.7)) +
-  scale_fill_manual(values = c("#56B4E9", "#E69F00"), name = "") +
-  scale_colour_manual(values = c("#56B4E9", "#E69F00"), name = "") +
-  labs(x = "Mean Inferred Minus Real Hierarchy Position", y = "Frequency") 
+  scale_fill_manual(values = c("#56B4E9", "#E69F00", "black"), name = "") +
+  scale_colour_manual(values = c("black", "#56B4E9", "#E69F00"), name = "") +
+  labs(x = "Mean Inferred Minus Real Hierarchy Position", y = "Frequency") + 
+  geom_text(size = 4, aes(x = 0.8, y = 1.6, label = "Perc:\n Breeding females", colour = "black"))
 # non-breeders
 D <- ggplot(output_PERC[which(output_PERC$female_category == "Non-breeding Females"),], aes(result, colour = bias_type, fill = bias_type)) +
   geom_vline(xintercept = 0, colour = "black", linewidth = 1) +
@@ -55,11 +58,12 @@ D <- ggplot(output_PERC[which(output_PERC$female_category == "Non-breeding Femal
   theme_linedraw(base_size = 12) +
   scale_x_continuous(limits = c(-1.3,1.3)) +
   scale_y_continuous(limits = c(0,1.7)) +
-  scale_fill_manual(values = c("#56B4E9", "#E69F00"), name = "") +
-  scale_colour_manual(values = c("#56B4E9", "#E69F00"), name = "") +
+  scale_fill_manual(values = c("#56B4E9", "#E69F00", "black"), name = "") +
+  scale_colour_manual(values = c("black", "#56B4E9", "#E69F00"), name = "") +
   labs(x = "Mean Inferred Minus Real Hierarchy Position", y = "") +
   theme(axis.text.y = element_blank(),
-        axis.title.y = element_blank())
+        axis.title.y = element_blank()) + 
+  geom_text(size = 4, aes(x = 0.8, y = 1.6, label = "Perc:\n Non-breeding females", colour = "black"))
 
 # Combine plots
 combined_plots <- plot_grid(A + theme(legend.position = "none"),
@@ -73,14 +77,17 @@ combined_plots <- plot_grid(A + theme(legend.position = "none"),
                             rel_widths = c(1,0.05,1,1,0.05,1))
 
 # Get Legend
-legend_b <- get_legend(A + 
+legend_b <- get_legend(ggplot(output_ELO, aes(result, colour = bias_type, fill = bias_type)) +
+                         geom_density(bw = 0.17, alpha = 0.4, linewidth = 1.2) +
+                         scale_fill_manual(values = c("#56B4E9", "#E69F00"), name = "") + 
+                         scale_colour_manual(values = c("#56B4E9", "#E69F00"), name = "") + 
                          guides(color = guide_legend(nrow = 1)) +
                          theme_linedraw(base_size = 15) +
                          theme(legend.position = "bottom"))
 
 
 # Save combined results plot to PDF
-pdf(here("Figures", "Combined_ELO_and_PERC_results.pdf"), height = 6, width = 8) # save
+pdf(here("Figures", "Combined_ELO_and_PERC_results_labeled.pdf"), height = 6, width = 8) # save
 # Combine the 4 plots and the legend
 plot_grid(combined_plots, NULL, legend_b, ncol = 1, rel_heights = c(1, 0.03, .07))
 dev.off() # finish
