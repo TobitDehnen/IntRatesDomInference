@@ -26,7 +26,7 @@ source(here("Scripts", "Source_3.0.R"))
 # Number of simulations
 n_sims <- 500 # positive integer
 # Hierarchy inference method, either get.Elo (randomised Elo scores) or get.perc (percolation and conductance method)
-hierarchy_method <- "get.Elo" # get.Elo" OR "get.perc"
+hierarchy_method <- "get.Elo" # get.Elo" OR "get.perc" OR "get.matrix"
 
 # Number of males
 n_males <- 16 # positive integer
@@ -36,7 +36,7 @@ n_females <- 10 # positive integer
 prop_fem_breeding <- 0.5 # 0-1
 # Number of times each MM, MF and FF dyad interacts in unbiased scenario; in the biased scenario only MF dyads involving non-breeding females interact, and FF dyads interact half as much when not of the same preference category
 ratio_ints_to_dyad <-  c(12,8,4) # three integers, last one should be an even number (as it's divided by 2 in the biased scenario)
-# steepness of sigmoidal function: larger numbers create steeper hierarchies via: probability A wins = 1 / (1 + exp(-(rank_diff * steepness)))
+# Steepness of sigmoidal function: larger numbers create steeper hierarchies via: probability A wins = 1 / (1 + exp(-(rank_diff * steepness)))
 steepness <- 1 # positive number
 # Compare inferred vs real dominance order, among either only females or all group members
 dom_comp <- "female" # "female  OR "entire"
@@ -170,3 +170,9 @@ ggplot(output, aes(result, colour = bias_type, fill = bias_type)) +
   facet_grid(~female_category) +
   theme(legend.position = "bottom", panel.spacing = unit(3, "lines"))
 dev.off() # finish
+
+
+
+
+
+

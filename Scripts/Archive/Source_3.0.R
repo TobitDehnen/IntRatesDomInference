@@ -5,8 +5,9 @@ get.real.ints <- function(n_males = 16, # Number of males
                           n_females = 10, # Number of females
                           prop_fem_breeding = 0.5, # Proportion of females not to be aggressed
                           ratio_ints_to_dyad = c(9,6,3), # Number of times each MM, MF, FF dyad interacts
-                          male_aggro_bias = TRUE, # Whether males don't interact aggresively with subordinate females (TRUE) or if interact same as with other females (FALSE)
-                          steepness = 1 # steepness of sigmoidal function: larger numbers create steeper hierarchies via: probability A wins = 1 / (1 + exp(-(rank_diff * steepness)))
+                          bias_type = TRUE, # Whether males don't interact aggresively with subordinate females (TRUE) or if interact same as with other females (FALSE)
+                          steepness = 1, # steepness of sigmoidal function: larger numbers create steeper hierarchies via: probability A wins = 1 / (1 + exp(-(rank_diff * steepness)))
+                          n_cores = 8 # number of cores to use when generating interaction outcomes
 ) {
   
   # Generate individuals and their dominance
@@ -30,7 +31,7 @@ get.real.ints <- function(n_males = 16, # Number of males
   ints_real_MM <- ints_real_MM[-which(ints_real_MM$Ind_A == ints_real_MM$Ind_B),] # remove self-interactions
   ints_real_MM <- ints_real_MM[rep(seq_len(nrow(ints_real_MM)), times = ratio_ints_to_dyad[1]),] # repeat certain number of times
   
-  if(male_aggro_bias) {
+  if(bias_type == "Males tolerate breeding females only") {
     ## MF - with non-breeding only, where aggression is redirected from breeding to non-breeding
     ints_real_MF <- expand.grid(Ind_A = inds$ID[which(inds$sex == "M")], Ind_B = inds$ID[which(inds$sex == "F" & inds$breeding_female == 0)]) # get all combinations
     ints_real_MF <- ints_real_MF[rep(seq_len(nrow(ints_real_MF)), times = round((ratio_ints_to_dyad[2]) * (1 / prop_fem_breeding)), digits = 0),] # redirected aggression
@@ -52,7 +53,7 @@ get.real.ints <- function(n_males = 16, # Number of males
     ints_real_FF <- rbind(ints_real_FF_same_category,ints_real_FF_different_category )
     ints_real_FF <- ints_real_FF[,which(colnames(ints_real_FF) %in% c("Ind_A", "Ind_B"))]
     
-  } else if (male_aggro_bias == FALSE) {
+  } else if (bias_type == "Males tolerate all females equally") {
     ## MF
     ints_real_MF <- expand.grid(Ind_A = inds$ID[which(inds$sex == "M")], Ind_B = inds$ID[which(inds$sex == "F")]) # get all combinations
     ints_real_MF <- ints_real_MF[rep(seq_len(nrow(ints_real_MF)), times = ratio_ints_to_dyad[2]),] # repeat certain number of times
@@ -67,14 +68,18 @@ get.real.ints <- function(n_males = 16, # Number of males
   ints_real <- ints_real[sample(nrow(ints_real)),]
   rownames(ints_real) <- 1:nrow(ints_real)
   
-  # Simulate outcomes
+  ## Simulate outcomes
   ints_real$winner <- NA
   ints_real$loser <- NA
-  for (i in 1:nrow(ints_real)) {
+  # dataframe -> list
+  ints_real_list <- split(ints_real, seq(nrow(ints_real)))
+  
+  # Run mclapply over dataframe (instead of loop)
+  ints_real_list <- mclapply(ints_real_list, function(ints_real_list) {
     
     # Simulate an interaction
-    Ind_A_tmp = ints_real$Ind_A[i]
-    Ind_B_tmp = ints_real$Ind_B[i]
+    Ind_A_tmp <- ints_real_list$Ind_A
+    Ind_B_tmp <- ints_real_list$Ind_B
     
     # Get rank difference
     rank_diff <- inds$dominance[which(inds$ID == Ind_A_tmp)] - inds$dominance[which(inds$ID == Ind_B_tmp)]
@@ -87,15 +92,21 @@ get.real.ints <- function(n_males = 16, # Number of males
     
     # Allocate winner and loser
     if (Ind_A_tmp_won_this) {
-      ints_real$winner[i] <- as.character(Ind_A_tmp)
-      ints_real$loser[i] <- as.character(Ind_B_tmp)
+      ints_real_list$winner <- as.character(Ind_A_tmp)
+      ints_real_list$loser <- as.character(Ind_B_tmp)
     } else {
-      ints_real$winner[i] <- as.character(Ind_B_tmp)
-      ints_real$loser[i] <- as.character(Ind_A_tmp)
+      ints_real_list$winner <- as.character(Ind_B_tmp)
+      ints_real_list$loser <- as.character(Ind_A_tmp)
     }
-  }
+    
+    return(ints_real_list)} # return output list
+    , mc.cores = n_cores # number of cores
+  )
+  # recombine output list into df
+  ints_real <- do.call(rbind, ints_real_list)
   
-  # Remove unnecessary columns
+  
+  # Remove any unnecessary columns
   ints_real <- ints_real[,which(colnames(ints_real) %in% c("winner", "loser"))]
   
   # Return simulated interactions
