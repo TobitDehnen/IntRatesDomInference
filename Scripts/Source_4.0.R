@@ -5,9 +5,10 @@ get.real.ints <- function(n_males = 16, # Number of males
                           n_females = 10, # Number of females
                           prop_fem_breeding = 0.5, # Proportion of females not to be aggressed
                           ratio_ints_to_dyad = c(12,8,4), # Number of times each MM, MF, FF dyad interacts, last number must be even
-                          bias_type = TRUE, # Whether males don't interact aggresively with subordinate females (TRUE) or if interact same as with other females (FALSE)
+                          bias_type = "Males tolerate all females equally", # intersexual interactions scenario
                           steepness = 1, # steepness of sigmoidal function: larger numbers create steeper hierarchies via: probability A wins = 1 / (1 + exp(-(rank_diff * steepness)))
-                          n_cores = 8 # number of cores to use when generating interaction outcomes
+                          n_cores = 8, # number of cores to use when generating interaction outcomes
+                          for_network_illustration = F # if it's to simply illustrate the network, always allocate the same females as breeders/non-breeders
 ) {
   
   # Generate individuals and their dominance
@@ -20,10 +21,19 @@ get.real.ints <- function(n_males = 16, # Number of males
   inds$dominance <- (inds$dominance - min(inds$dominance)) / (max(inds$dominance) - min(inds$dominance)) * ((n_males + n_females) - 1)
   
   
-  ### Assign which females are oreferred
+  ### Assign which females are preferred
   inds$breeding_female <- NA
   inds$breeding_female[which(inds$sex == "F")] <- sample(c(rep(1, times = n_females * prop_fem_breeding), rep(0, times = n_females - (n_females * prop_fem_breeding))), size = n_females)
   
+  # if for illustration, hard code group size, sex composition, dominance values and breeder allocations
+  if(for_network_illustration) {
+    inds <- data.frame(ID = LETTERS[1:(16+10)], # IDs
+                                      dominance = c(2.60, 1.43, 1.17, 1.07, 0.55, 0.48, 0.34, 0.22, 0.11, 0.05, -0.06, -0.10, -0.19, -1.21, -1.36, -1.39,
+                                                    -2.88, -2.89, -3.04, -3.43, -3.71, -3.77, -4.57, -4.65, -5.01, -5.55), # Dominance
+                                      sex = c(rep("M", times = 16), rep("F", times = 10))) # sex
+  # Standardise dominance between 0 and no. individuals in group -1
+  inds$dominance <- (inds$dominance - min(inds$dominance)) / (max(inds$dominance) - min(inds$dominance)) * ((n_males + n_females) - 1)
+  inds$breeding_female[which(inds$sex == "F")] <- c(0, 1, 0, 1, 0, 1, 1, 0, 0, 1)}
   
   ### Generate interactions 
   ## MM - same irrespective of male-female aggression scenario

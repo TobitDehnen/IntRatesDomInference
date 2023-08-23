@@ -36,9 +36,9 @@ n_sims <- 500
 hierarchy_method <- "get.matrix"
 
 # Number of males: positive integer
-n_males <- 16
+n_males <- 10
 # Number of females: positive integer
-n_females <- 10
+n_females <- 16
 # Proportion of females assigned as breeding
 prop_fem_breeding <- 0.5 # 0-1
 # Number of times each MM, MF and FF dyad interacts in unbiased scenario; in the biased scenario only MF dyads involving non-breeding females interact, and FF dyads
@@ -96,7 +96,8 @@ output_list <- pbmclapply(output_list, function(output_list) { # pbmclapply allo
                             ratio_ints_to_dyad = as.numeric((strsplit(output_list$ratio_ints_to_dyad, split = "_"))[[1]]), # Number of times each  MM, MF and FF dyad interacts
                             bias_type = output_list$bias_type, # males either aggress all females equally (FALSE) or redirect aggression from breeding to non-breeding females and no. interactions between breeding & non-breeding females is simultaneously halved 
                             steepness = output_list$steepness, # steepness of sigmoidal function: larger numbers create steeper hierarchies via: probability A wins = 1 / (1 + exp(-(rank_diff * steepness)))
-                            n_cores = output_list$n_cores # number of cores to use
+                            n_cores = output_list$n_cores, # number of cores to use
+                            for_network_illustration = F # if it's to simply illustrate the network, always allocate the same females as breeders/non-breeders
   )
   
   # Infer hierarchy from interaction
