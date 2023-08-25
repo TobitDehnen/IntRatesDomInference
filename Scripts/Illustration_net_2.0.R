@@ -1,3 +1,5 @@
+# # RStudio plotter window size: 
+
 ### SET UP
 
 # Clear the workspace
@@ -9,6 +11,7 @@ set.seed(1)
 library(here) # path
 library(igraph) # network
 library(parallel) # multiple core lapply function
+library(cowplot) # combine networks
 
 # Source code
 source(here("Scripts", "Source_4.0.R"))
@@ -19,9 +22,8 @@ female_breeder_col <- "#009e73"
 female_nonbreeder_col <- "#e69f00"
 
 # Colours for F<->F, F<->M and M<->M edges
-
-edges_FF <- "#0072b2"
-edges_FM <- adjustcolor("#56b4e9", 0.6)
+edges_FF <- adjustcolor("#0072b2", 0.8)
+edges_FM <- adjustcolor("#56b4e9", 0.4)
 edges_MM <- adjustcolor("gray70", 0.25)
 
 # bias_cats to plot
@@ -30,7 +32,9 @@ bias_cats <- c("Males tolerate breeding females only", "Males tolerate all femal
 # Save networks into this list
 networks <- vector(mode = "list", length = length(bias_cats))
 
-### Make networks for both bias_cats
+
+
+### MAKE NETWORKS ####
 for(i in 1:length(networks)) {
   # Generate 'real interactions' for virtual population
   ints_obs <- get.real.ints(n_males = 16, # Number of males
@@ -56,10 +60,12 @@ for(i in 1:length(networks)) {
   graph <- graph.adjacency(matrix, mode = "directed", weighted = TRUE, diag = FALSE)
   
   # Generate and save coordinates for plotting both graphs the same
-  if(i == 1) {
-    layout_graph <- layout_with_graphopt(graph, niter = 500, charge = 0.1)
-    base_coords <- data.frame(ID = colnames(matrix), dim_1 = layout_graph[,1], dim_2 = layout_graph[,2])
-  }
+#  if(i == 1) {layout_graph <- layout_with_graphopt(graph, niter = 500, charge = 0.1) 
+#  base_coords <- data.frame(ID = colnames(matrix), dim_1 = layout_graph[,1], dim_2 = layout_graph[,2])}
+  # Hardcode coodinates
+  base_coords <- data.frame(ID = LETTERS,
+                            dim_1 = c(-162.5, 63.5, -160.9, -363.7, -545.0, -608.2, -191.2, -399.7, -429.3, -354.2, -592.4, -222.3, -344.8, -89.7, 1.3, 95.8, 136.2, 548.1, 270.3, 424.8, -67.3, 394.3, 117.2, 256.1, 65.1, 638.4),
+                            dim_2 = c(136.8, -270.8, -203.7, 217.0, 116.0, -301.4, -368.6, -23.2, -367.4, -206.0, -95.5, -36.4, -531.0, -554.3, -97.7, -442.9, 229.7, -97.9, 49.9, 327.4, 323.4, 566.4, 556.0, -163.3, 57.4, 180.4))
   
   ## Node colours as grey for males and red/blue for breeding/non-breeding females
   attributes$colour <- NA
@@ -91,9 +97,9 @@ for(i in 1:length(networks)) {
   
   # Set margins
   if(i == 1) {
-    par(mar = c(0,0,3,0)+.1)  # leave space on right
+    par(mar = c(0,0,3,0))  # leave space on top
   } else {
-    par(mar = c(0,0,3,0)+.1)  # leave space on left
+    par(mar = c(0,0,3,0))  # leave space on top
   }
   
   ## Plot the network
@@ -112,24 +118,43 @@ for(i in 1:length(networks)) {
   # Annotate the graph
   mtext(bias_cats[i], # text
         side = 3, # top
-        line = 1, # first line
-        cex = 1.2, # size
+        line = 0.5, # first line
+        cex = 1.7, # size
         font = 3 # bold
   ) # label
   
   # Add legend
   if(i == 2) {
-    legend(x = -1.4, y = 1.1,
-           legend = c("Males","Breeding females", "Non-breeding females"),
-           col = c(male_col, female_breeder_col, female_nonbreeder_col),
-           pch = c(15, 16, 16),
-           cex = 1,
-           pt.cex = 1.5,
+    legend(x = 0.23, y = -0.4,
+           title = "Nodes: Type & Size",
+           legend = c("Males","Breeding females", "Non-breeding females", "", "More dominant", "Less dominant"),
+           col = c(male_col, female_breeder_col, female_nonbreeder_col, NA, "gray50", "gray50"),
+           pch = c(15, 16, 16, NA, 16, 16),
+           cex = 1.1,
+           pt.cex = c(2, 2, 2, 0, 2.5, 1.5),
            bty = "o",
            box.lty = 1,
            box.lwd = 3,
-           box.col = "gray5",
-           y.intersp = 1.2,
+           box.col = adjustcolor("black", 0.8),
+           bg = adjustcolor("white", 0.6),
+           y.intersp = 1,
+           ncol = 1)
+  } else {
+    legend(x = 0.3, y = -0.4,
+           title = "Edges: Type & Width",
+           legend = c("Male-male","Male-female", "Female-female", "", "Many interactions", "Few interactions"),
+           col = c(edges_MM, edges_FM, edges_FF, NA, "black", "black"),
+           pch = c(NA, NA, NA),
+           lty = c(1, 1, 1, 1, 1, 1),
+           lwd = c(4, 4, 4, 0, 6, 2),
+           cex = 1.1,
+           pt.cex = 2,
+           bty = "o",
+           box.lty = 1,
+           box.lwd = 3,
+           box.col = adjustcolor("black", 0.8),
+           bg = adjustcolor("white", 0.6), 
+           y.intersp = 1,
            ncol = 1)
   }
   # Save network
@@ -137,21 +162,34 @@ for(i in 1:length(networks)) {
 }
 
 
-### Combine plots of both networks
-library(cowplot)
 
-# Combine plots
-combined_plots <- plot_grid(networks[[2]], 
-                            NULL,
-                            networks[[1]],
+### COMBINE NETWORKS AND SAVE THEM ####
+
+## First combine each plot with a narrow NULL plot (to prevent overlapping when combining)
+# The first network (biased)
+net1 <- plot_grid(networks[[1]], 
+                  NULL,
+                  labels = c("", ""), ncol = 2,
+                  rel_widths = c(0.8,0))
+# The first network (unbiased)
+net2 <- plot_grid(networks[[2]], 
+                  NULL,
+                  labels = c("", ""), ncol = 2,
+                  rel_widths = c(0.8,0))
+
+# Combine the two networks
+combined_plots <- plot_grid(net2,
+                            NULL, # to prevent overlap
+                            net1,
                             hjust = -0.4,
-                            labels = c("A", "", "C"), ncol = 3,
-                            rel_widths = rep(c(1,0.2,1), times = 3))
+                            labels = c("A", "", "B"), 
+                            label_size = 18,
+                            ncol = 3,
+                            rel_widths = c(1,0.3,1),
+                            rel_heights = c(1,1,1))
+
+
 # Save networks to PDF
-pdf(here("Figures", paste("Aggression_networks", ".pdf", sep = "")), height = 4, width = 10) # save
+pdf(here("Figures", paste("Aggression_networks_2.0", ".pdf", sep = "")), height = 6, width = 13) # save
 combined_plots
 dev.off() # finish
-
-
-# # # Need to make the two plots plot fine without overlapping and the legend looking weird, maybe via making 1 cowplot of network + plus a very thin null plot, and combine with a second cowplot of the second network
-

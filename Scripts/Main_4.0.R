@@ -32,13 +32,13 @@ source(here("Scripts", "Source_4.0.R"))
 n_cores <- 8
 # Number of simulations to run (recommended at least 100): positive integer
 n_sims <- 500
-# Hierarchy inference method to test, either: randomised Elo scores ("get.Elo), percolation and conductance-based hierarchy (get.perc) or I&SI ("get.matrix")
+# Hierarchy inference method to test, either: randomised Elo scores ("get.Elo"), percolation and conductance-based hierarchy (get.perc) or I&SI ("get.matrix")
 hierarchy_method <- "get.matrix"
 
 # Number of males: positive integer
-n_males <- 10
+n_males <- 16
 # Number of females: positive integer
-n_females <- 16
+n_females <- 10
 # Proportion of females assigned as breeding
 prop_fem_breeding <- 0.5 # 0-1
 # Number of times each MM, MF and FF dyad interacts in unbiased scenario; in the biased scenario only MF dyads involving non-breeding females interact, and FF dyads
@@ -46,7 +46,7 @@ prop_fem_breeding <- 0.5 # 0-1
 ratio_ints_to_dyad <-  c(12,8,4)
 # steepness of sigmoidal function: larger numbers create steeper hierarchies via: probability A wins = 1 / (1 + exp(-(rank_diff * steepness))): positive number
 steepness <- 1
-# Compare inferred vs real dominance order, among either only females or all group members (as females could be inferred as dominant to some males): "female  OR "entire"
+# Compare inferred vs real dominance order, among either only females or all group members (as females could be inferred as dominant to some males): "female"  OR "entire"
 dom_comp <- "female"
 
 
@@ -100,7 +100,14 @@ output_list <- pbmclapply(output_list, function(output_list) { # pbmclapply allo
                             for_network_illustration = F # if it's to simply illustrate the network, always allocate the same females as breeders/non-breeders
   )
   
-  # Infer hierarchy from interaction
+  ## Real hierarchy positions (intrasexual and group-level)
+  # Entire hierarchy order
+  ints_obs$inds$dominance_real_order <- 1:nrow(ints_obs$inds)
+  # Intra-female order
+  ints_obs$inds$dominance_real_order_femalesexspecific <- NA
+  ints_obs$inds[which(ints_obs$inds$sex == "F"),]$dominance_real_order_femalesexspecific <- 1:nrow(ints_obs$inds[which(ints_obs$inds$sex == "F"),]) 
+  
+  # Infer hierarchy from interactions
   if(output_list$hierarchy_method == "get.Elo") {
     dom <- get.Elo(ints_obs$ints_real) # randomised Elo ratings
   } else if (output_list$hierarchy_method == "get.perc") {
@@ -109,14 +116,14 @@ output_list <- pbmclapply(output_list, function(output_list) { # pbmclapply allo
     dom <- get.matrix(ints_obs$ints_real) # I&SI
   }
   
-  # Add inferred rank order to original dataframe
+  ## Add inferred positions from hierarchy
+  # Entire hierarchy order
   ints_obs$inds$dominance_inferred_order <- dom$order[match(ints_obs$inds$ID, dom$ID)]
-  
   # Intra-female order
   ints_obs$inds$dominance_inferred_order_femalesexspecific <- NA
-  ints_obs$inds$dominance_real_order_femalesexspecific <- NA
-  ints_obs$inds[which(ints_obs$inds$sex == "F"),]$dominance_inferred_order_femalesexspecific <- order(ints_obs$inds[which(ints_obs$inds$sex == "F"),]$dominance_inferred_order)
-  ints_obs$inds[which(ints_obs$inds$sex == "F"),]$dominance_real_order_femalesexspecific <- 1:nrow(ints_obs$inds[which(ints_obs$inds$sex == "F"),]) 
+  ints_obs$inds[which(ints_obs$inds$sex == "F"),]$dominance_inferred_order_femalesexspecific <- match(ints_obs$inds[which(ints_obs$inds$sex == "F"),]$dominance_inferred_order, # observed order
+                                                                                                      sort(ints_obs$inds[which(ints_obs$inds$sex == "F"),]$dominance_inferred_order)) # sorted order
+  
   
   # Compare inferred to real hierarchy
   # New column to fill
@@ -134,7 +141,7 @@ output_list <- pbmclapply(output_list, function(output_list) { # pbmclapply allo
       # If female
       if(ints_obs$inds$sex[j] == "F") {
         # Ranks
-        ints_obs$inds$ranks_inferred_above_real[j] <- ints_obs$inds$dominance_real_order[j] - ints_obs$inds$dominance_inferred_order[j]
+        ints_obs$inds$ranks_inferred_above_real[j] <- ints_obs$inds$dominance_real_order[j] - ints_obs$inds$dominance_inferred_order[j] # need to change the ints_obs$dominance_real_order here as that variable doesn't exist so gets zeros instead
       }
     } 
   }
@@ -178,14 +185,14 @@ output_name <- paste("n_sims=", n_sims, ",n_males=", n_males, ",n_females=", n_f
 
 ### SAVE OUTPUTS ####
 
-save(output, file = here("Outputs", paste(output_name, ".RData", sep = "")))
+save(output, file = here("Outputs/Updated_Code", paste(output_name, ".RData", sep = "")))
 
 
 
 ### PLOT RESULTS ####
 
 # Save results plot to PDF
-pdf(here("Figures", paste(output_name, ".pdf", sep = "")), height = 5, width = 8) # save
+pdf(here("Figures/Updated_Code", paste(output_name, ".pdf", sep = "")), height = 5, width = 8) # save
 ggplot(output, aes(result, colour = bias_type, fill = bias_type)) +
   geom_vline(xintercept = 0, colour = "black", linetype = "dashed", linewidth = 1) +
   geom_density(bw = 0.17, alpha = 0.4, linewidth = 1.2) +
@@ -196,18 +203,4 @@ ggplot(output, aes(result, colour = bias_type, fill = bias_type)) +
   facet_grid(~female_category) +
   theme(legend.position = "bottom", panel.spacing = unit(3, "lines"))
 dev.off() # finish
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
