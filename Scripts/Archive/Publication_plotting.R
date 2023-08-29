@@ -1,3 +1,8 @@
+library(ggplot2)
+library(cowplot)
+library(here)
+
+
 # ELO output
 previous_run <- "n_sims=500,n_males=16,n_females=10,prop_fem_breeding=0.5,ratio_ints_to_dyad=12,8,4,steepness=1,dom_comp=female,hierarchy_method=get.Elo.RData"
 load(here("Outputs", previous_run))
@@ -11,9 +16,6 @@ previous_run <- "n_sims=500,n_males=16,n_females=10,prop_fem_breeding=0.5,ratio_
 load(here("Outputs", previous_run))
 output_ISI <- output
 
-library(ggplot2)
-library(cowplot)
-
 ### ELO
 # breeders
 plot_A <- ggplot(output_ELO[which(output_ELO$female_category == "Breeding females"),], aes(result, colour = bias_type, fill = bias_type)) +
@@ -21,11 +23,11 @@ plot_A <- ggplot(output_ELO[which(output_ELO$female_category == "Breeding female
   geom_density(bw = 0.17, alpha = 0.4, linewidth = 1.2) +
   theme_classic(base_size = 12) +
   scale_x_continuous(limits = c(-1.3,1.3)) +
-  scale_y_continuous(limits = c(0,1.7)) +
+  scale_y_continuous(limits = c(0,1.8)) +
   scale_fill_manual(values = c("#56B4E9", "#E69F00"), name = "") +
   scale_colour_manual(values = c("#56B4E9", "#E69F00"), name = "") +
   labs(x = "", y = "Density") +
-  annotate("text", x = 0.9, y = 1.5, angle = 0,
+  annotate("text", x = 0.9, y = 1.6, angle = 0,
            label = 'atop(bold("Elo rand."),italic("Breeding females"))', size = 3, parse = TRUE) +
   coord_cartesian(clip = "off") +
   theme(axis.text.x = element_blank(),
@@ -38,11 +40,11 @@ plot_B <- ggplot(output_ELO[which(output_ELO$female_category == "Non-breeding fe
   geom_density(bw = 0.17, alpha = 0.4, linewidth = 1.2) +
   theme_classic(base_size = 12) +
   scale_x_continuous(limits = c(-1.3,1.3)) +
-  scale_y_continuous(limits = c(0,1.7)) +
+  scale_y_continuous(limits = c(0,1.8)) +
   scale_fill_manual(values = c("#56B4E9", "#E69F00"), name = "") +
   scale_colour_manual(values = c("#56B4E9", "#E69F00"), name = "") +
   labs(x = "", y = "") +
-  annotate("text", x = 0.9, y = 1.5, angle = 0,
+  annotate("text", x = 0.9, y = 1.6, angle = 0,
            label = 'atop(bold("Elo rand."),italic("Non-breeding females"))', size = 3, parse = TRUE) +
   coord_cartesian(clip = "off") +
   theme(axis.text.x = element_blank(),
@@ -59,11 +61,11 @@ plot_C <- ggplot(output_ISI[which(output_ISI$female_category == "Breeding female
   geom_density(bw = 0.17, alpha = 0.4, linewidth = 1.2) +
   theme_classic(base_size = 12) +
   scale_x_continuous(limits = c(-1.3,1.3)) +
-  scale_y_continuous(limits = c(0,1.7)) +
+  scale_y_continuous(limits = c(0,1.8)) +
   scale_fill_manual(values = c("#56B4E9", "#E69F00"), name = "") +
   scale_colour_manual(values = c("#56B4E9", "#E69F00"), name = "") +
   labs(x = "", y = "Density") +
-  annotate("text", x = 0.9, y = 1.5, angle = 0,
+  annotate("text", x = 0.9, y = 1.6, angle = 0,
            label = 'atop(bold("I&SI"),italic("Breeding females"))', size = 3, parse = TRUE) +
   coord_cartesian(clip = "off") +
   theme(axis.text.x = element_blank(),
@@ -76,11 +78,11 @@ plot_D <- ggplot(output_ISI[which(output_ISI$female_category == "Non-breeding fe
   geom_density(bw = 0.17, alpha = 0.4, linewidth = 1.2) +
   theme_classic(base_size = 12) +
   scale_x_continuous(limits = c(-1.3,1.3)) +
-  scale_y_continuous(limits = c(0,1.7)) +
+  scale_y_continuous(limits = c(0,1.8)) +
   scale_fill_manual(values = c("#56B4E9", "#E69F00"), name = "") +
   scale_colour_manual(values = c("#56B4E9", "#E69F00"), name = "") +
   labs(x = "", y = "") +
-  annotate("text", x = 0.9, y = 1.5, angle = 0,
+  annotate("text", x = 0.9, y = 1.6, angle = 0,
            label = 'atop(bold("I&SI"),italic("Non-breeding females"))', size = 3, parse = TRUE) +
   coord_cartesian(clip = "off") +
   theme(axis.text.x = element_blank(),
@@ -97,11 +99,11 @@ plot_E <- ggplot(output_PERC[which(output_PERC$female_category == "Breeding fema
   geom_density(bw = 0.17, alpha = 0.4, linewidth = 1.2) +
   theme_classic(base_size = 12) +
   scale_x_continuous(limits = c(-1.3,1.3)) +
-  scale_y_continuous(limits = c(0,1.7)) +
+  scale_y_continuous(limits = c(0,1.8)) +
   scale_fill_manual(values = c("#56B4E9", "#E69F00"), name = "") +
   scale_colour_manual(values = c("#56B4E9", "#E69F00"), name = "") +
   labs(x = "Mean Inferred Minus Real Hierarchy Position", y = "Density") +
-  annotate("text", x = 0.9, y = 1.5, angle = 0,
+  annotate("text", x = 0.9, y = 1.6, angle = 0,
            label = 'atop(bold("Perc. & Cond."),italic("Breeding females"))', size = 3, parse = TRUE) +
   coord_cartesian(clip = "off") +
   theme(panel.grid.major = element_line(colour="#f0f0f0"),
@@ -112,11 +114,11 @@ plot_F <- ggplot(output_PERC[which(output_PERC$female_category == "Non-breeding 
   geom_density(bw = 0.17, alpha = 0.4, linewidth = 1.2) +
   theme_classic(base_size = 12) +
   scale_x_continuous(limits = c(-1.3,1.3)) +
-  scale_y_continuous(limits = c(0,1.7)) +
+  scale_y_continuous(limits = c(0,1.8)) +
   scale_fill_manual(values = c("#56B4E9", "#E69F00"), name = "") +
   scale_colour_manual(values = c("#56B4E9", "#E69F00"), name = "") +
   labs(x = "Mean Inferred Minus Real Hierarchy Position", y = "") +
-  annotate("text", x = 0.9, y = 1.5, angle = 0,
+  annotate("text", x = 0.9, y = 1.6, angle = 0,
            label = 'atop(bold("Perc. & Cond."),italic("Non-breeding females"))', size = 3, parse = TRUE) +
   coord_cartesian(clip = "off") +
   theme(axis.text.y = element_blank(),

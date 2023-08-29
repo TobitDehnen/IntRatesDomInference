@@ -21,7 +21,7 @@ library(reshape2) # collapsing results (short to long format)
 source(here("Scripts", "Source_4.0.R"))
 
 # Can also load a previously run output if we want to, but don't resave this as the title (using below parameters) may not match the dataset
-#previous_run <- "n_sims=500,n_males=16,n_females=10,prop_fem_breeding=0.5,ratio_ints_to_dyad=12,8,4,steepness=1,dom_comp=female,hierarchy_method=get.perc.RData"
+#previous_run <- "n_sims=500,n_males=16,n_females=10,prop_fem_breeding=0.5,ratio_ints_to_dyad=12,8,4,steepness=1,dom_comp=female,hierarchy_method=get.matrix.RData"
 #load(here("Outputs", previous_run))
 
 
@@ -185,14 +185,14 @@ output_name <- paste("n_sims=", n_sims, ",n_males=", n_males, ",n_females=", n_f
 
 ### SAVE OUTPUTS ####
 
-save(output, file = here("Outputs/Updated_Code", paste(output_name, ".RData", sep = "")))
+save(output, file = here("Outputs", paste(output_name, ".RData", sep = "")))
 
 
 
 ### PLOT RESULTS ####
 
 # Save results plot to PDF
-pdf(here("Figures/Updated_Code", paste(output_name, ".pdf", sep = "")), height = 5, width = 8) # save
+pdf(here("Figures", paste(output_name, ".pdf", sep = "")), height = 5, width = 8) # save
 ggplot(output, aes(result, colour = bias_type, fill = bias_type)) +
   geom_vline(xintercept = 0, colour = "black", linetype = "dashed", linewidth = 1) +
   geom_density(bw = 0.17, alpha = 0.4, linewidth = 1.2) +
