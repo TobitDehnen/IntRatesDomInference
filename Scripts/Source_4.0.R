@@ -196,4 +196,15 @@ quiet <- function(x) {
   sink(tempfile()) 
   on.exit(sink()) 
   invisible(force(x)) 
-} 
+}
+
+# Function to calculate skewness and kurtosis of distributions
+skew_kurt <- function(dist) {
+  library(e1071) #
+  skewness <- skewness(dist, type = 1) # Skew
+  kurtosis <- kurtosis(dist, type = 1) # Kurtosis
+  
+  # For interpretation see: https://digitaschools.com/descriptive-statistics-skewness-and-kurtosis/#:~:text=We%20use%20the%20skewness%20function,indicating%20a%20positively%20skewed%20distribution.
+  
+  return(list(skewness = skewness, kurtosis = kurtosis))
+}

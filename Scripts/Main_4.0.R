@@ -33,7 +33,7 @@ n_cores <- 8
 # Number of simulations to run (recommended at least 100): positive integer
 n_sims <- 500
 # Hierarchy inference method to test, either: randomised Elo scores ("get.Elo"), percolation and conductance-based hierarchy (get.perc) or I&SI ("get.matrix")
-hierarchy_method <- "get.matrix"
+hierarchy_method <- "get.perc"
 
 # Number of males: positive integer
 n_males <- 16
@@ -43,14 +43,15 @@ n_females <- 10
 prop_fem_breeding <- 0.5 # 0-1
 # Number of times each MM, MF and FF dyad interacts in unbiased scenario; in the biased scenario only MF dyads involving non-breeding females interact, and FF dyads
 # interact half as much when not of the same preference category: three integers, last one should be an even number (as it's divided by 2 in the biased scenario)
-ratio_ints_to_dyad <-  c(12,8,4)
+ratio_ints_to_dyad <- c(12,8,4)
 # steepness of sigmoidal function: larger numbers create steeper hierarchies via: probability A wins = 1 / (1 + exp(-(rank_diff * steepness))): positive number
-steepness <- 1
+steepness <- 0.5
 # Compare inferred vs real dominance order, among either only females or all group members (as females could be inferred as dominant to some males): "female"  OR "entire"
 dom_comp <- "female"
 
 
-### OTHER PARAMETERS FOR LATER ON
+
+### OTHER PARAMETERS FOR LATER ON (DO NOT CHANGE)
 
 # Female categories
 fem_cats <- c("Breeding females", "Non-breeding females")

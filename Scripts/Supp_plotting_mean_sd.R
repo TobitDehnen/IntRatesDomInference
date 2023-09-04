@@ -6,15 +6,15 @@ library(here)
 source(here("Scripts", "Source_4.0.R"))
 
 # ELO output
-previous_run <- "n_sims=1000,n_males=16,n_females=10,prop_fem_breeding=0.5,ratio_ints_to_dyad=12,8,4,steepness=1,dom_comp=female,hierarchy_method=get.Elo.RData"
+previous_run <- "n_sims=500,n_males=16,n_females=10,prop_fem_breeding=0.5,ratio_ints_to_dyad=12,8,4,steepness=1,dom_comp=entire,hierarchy_method=get.Elo.RData"
 load(here("Outputs", previous_run))
 output_ELO <- output
 # PERC output
-previous_run <- "n_sims=1000,n_males=16,n_females=10,prop_fem_breeding=0.5,ratio_ints_to_dyad=12,8,4,steepness=1,dom_comp=female,hierarchy_method=get.perc.RData"
+previous_run <- "n_sims=500,n_males=16,n_females=10,prop_fem_breeding=0.5,ratio_ints_to_dyad=12,8,4,steepness=1,dom_comp=entire,hierarchy_method=get.perc.RData"
 load(here("Outputs", previous_run))
 output_PERC <- output
 # I&SI output
-previous_run <- "n_sims=1000,n_males=16,n_females=10,prop_fem_breeding=0.5,ratio_ints_to_dyad=12,8,4,steepness=1,dom_comp=female,hierarchy_method=get.matrix.RData"
+previous_run <- "n_sims=500,n_males=16,n_females=10,prop_fem_breeding=0.5,ratio_ints_to_dyad=12,8,4,steepness=1,dom_comp=entire,hierarchy_method=get.matrix.RData"
 load(here("Outputs", previous_run))
 output_ISI <- output
 
@@ -25,7 +25,7 @@ y_mean_sd_positions <- c(-0.075, -0.18)
 # Y limits
 y_lims <- c(-0.18,1.8)
 # X limits
-x_lims <- c(-1.4,1.4)
+x_lims <- c(-1.4,12)
 # Annotation position
 ann_pos <- c(0.65 * x_lims[2], 0.87 * y_lims[2])
 
@@ -185,7 +185,7 @@ plot_E <- ggplot(output_plot_E, aes(result, colour = bias_type, fill = bias_type
   geom_point(aes(x = E_biased_mean, y = y_mean_sd_positions[2]), size = 2, colour = "#E69F00", alpha = 0.4) +
   scale_fill_manual(values = c("#56B4E9", "#E69F00"), name = "") +
   scale_colour_manual(values = c("#56B4E9", "#E69F00"), name = "") +
-  labs(x = "Mean Inferred Minus Real Intrasexual Hierarchy Position", y = "Density") +
+  labs(x = "Mean Inferred Minus Real Hierarchy Position", y = "Density") +
   annotate("text", x = ann_pos[1], y = ann_pos[2], angle = 0,
            label = expression(atop(atop(textstyle(bold("Percolation and")), textstyle(bold("Conductance"))), italic("Breeding females"))), size = 3, parse = TRUE) +
   coord_cartesian(clip = "off") +
@@ -214,7 +214,7 @@ plot_F <- ggplot(output_plot_F, aes(result, colour = bias_type, fill = bias_type
   geom_point(aes(x = F_biased_mean, y = y_mean_sd_positions[2]), size = 2, colour = "#E69F00", alpha = 0.4) +
   scale_fill_manual(values = c("#56B4E9", "#E69F00"), name = "") +
   scale_colour_manual(values = c("#56B4E9", "#E69F00"), name = "") +
-  labs(x = "Mean Inferred Minus Real Intrasexual Hierarchy Position", y = "") +
+  labs(x = "Mean Inferred Minus Real Hierarchy Position", y = "") +
   annotate("text", x = ann_pos[1], y = ann_pos[2], angle = 0,
            label = expression(atop(atop(textstyle(bold("Percolation and")), textstyle(bold("Conductance"))), italic("Non-breeding females"))), size = 3, parse = TRUE) +
   coord_cartesian(clip = "off") +
@@ -253,7 +253,7 @@ legend <- get_legend(legend_plot)
 
 
 # Save combined results plot to PDF
-pdf(here("Figures", "Combined_ELO_PERC_ISI_results_mean_sd_dom_comp=female.pdf"), height = 8, width = 9) # save
+pdf(here("Figures", "Combined_ELO_PERC_ISI_results_mean_sd_dom_comp=entire.pdf"), height = 8, width = 9) # save
 # Combine the multi-plot and the legend
 plot_grid(combined_plots, NULL, legend, ncol = 1, rel_heights = c(1, 0.01, .05))
 dev.off() # finish
