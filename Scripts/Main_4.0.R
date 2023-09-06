@@ -28,30 +28,29 @@ source(here("Scripts", "Source_4.0.R"))
 
 ### PARAMETERS THAT CAN BE PLAYED WITH
 
-# Number of cores to use for running simulations: positive integer
-n_cores <- 8
-# Number of simulations to run (recommended at least 100): positive integer
-n_sims <- 500
-# Hierarchy inference method to test, either: randomised Elo scores ("get.Elo"), percolation and conductance-based hierarchy (get.perc) or I&SI ("get.matrix")
-hierarchy_method <- "get.perc"
+# Number of cores to use for running simulations:
+n_cores <- 8 # positive integer
+# Number of simulations to run (recommended at least 100):
+n_sims <- 500 # positive integer
+# Hierarchy inference method to test:
+hierarchy_method <- "get.perc" # either: randomised Elo scores ("get.Elo"), Percolation and Conductance ("get.perc") or I&SI ("get.matrix")
 
-# Number of males: positive integer
-n_males <- 16
-# Number of females: positive integer
-n_females <- 10
+# Number of males:
+n_males <- 16 # positive integer
+# Number of females: 
+n_females <- 10 # positive integer
 # Proportion of females assigned as breeding
 prop_fem_breeding <- 0.5 # 0-1
 # Number of times each MM, MF and FF dyad interacts in unbiased scenario; in the biased scenario only MF dyads involving non-breeding females interact, and FF dyads
-# interact half as much when not of the same preference category: three integers, last one should be an even number (as it's divided by 2 in the biased scenario)
-ratio_ints_to_dyad <- c(12,8,4)
+ratio_ints_to_dyad <- c(12,8,4) # three integers, last one should be an even number (as it's divided by 2 in the biased scenario)
 # steepness of sigmoidal function: larger numbers create steeper hierarchies via: probability A wins = 1 / (1 + exp(-(rank_diff * steepness))): positive number
-steepness <- 0.5
-# Compare inferred vs real dominance order, among either only females or all group members (as females could be inferred as dominant to some males): "female"  OR "entire"
-dom_comp <- "female"
+steepness <- 3 # positive value 
+# Compare inferred vs real dominance order, among either only females or all group members (as females could be inferred as dominant to some males):
+dom_comp <- "female" # "female"  OR "entire"
 
 
 
-### OTHER PARAMETERS FOR LATER ON (DO NOT CHANGE)
+### OTHER PARAMETERS FOR SIMULATION (DO NOT CHANGE)
 
 # Female categories
 fem_cats <- c("Breeding females", "Non-breeding females")

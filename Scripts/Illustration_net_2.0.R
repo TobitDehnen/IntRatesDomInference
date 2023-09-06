@@ -127,7 +127,7 @@ for(i in 1:length(networks)) {
   if(i == 2) {
     legend(x = 0.23, y = -0.4,
            title = "Nodes: Type & Size",
-           legend = c("Males","Breeding females", "Non-breeding females", "", "More dominant", "Less dominant"),
+           legend = c("Male","Breeding female", "Non-breeding female", "", "More dominant", "Less dominant"),
            col = c(male_col, female_breeder_col, female_nonbreeder_col, NA, "gray50", "gray50"),
            pch = c(15, 16, 16, NA, 16, 16),
            cex = 1.1,
@@ -142,7 +142,7 @@ for(i in 1:length(networks)) {
   } else {
     legend(x = 0.3, y = -0.4,
            title = "Edges: Type & Width",
-           legend = c("Male-male","Male-female", "Female-female", "", "Many interactions", "Few interactions"),
+           legend = c("Male-male","Male-female", "Female-female", "", "Many wins", "Few wins"),
            col = c(edges_MM, edges_FM, edges_FF, NA, "black", "black"),
            pch = c(NA, NA, NA),
            lty = c(1, 1, 1, 1, 1, 1),
