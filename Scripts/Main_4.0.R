@@ -40,11 +40,11 @@ n_males <- 16 # positive integer
 # Number of females: 
 n_females <- 10 # positive integer
 # Proportion of females assigned as breeding
-prop_fem_breeding <- 0.5 # 0-1
+prop_fem_breeding <- 0.7 # 0-1
 # Number of times each MM, MF and FF dyad interacts in unbiased scenario; in the biased scenario only MF dyads involving non-breeding females interact, and FF dyads
 ratio_ints_to_dyad <- c(12,8,4) # three integers, last one should be an even number (as it's divided by 2 in the biased scenario)
 # steepness of sigmoidal function: larger numbers create steeper hierarchies via: probability A wins = 1 / (1 + exp(-(rank_diff * steepness))): positive number
-steepness <- 3 # positive value 
+steepness <- 1 # positive value 
 # Compare inferred vs real dominance order, among either only females or all group members (as females could be inferred as dominant to some males):
 dom_comp <- "female" # "female"  OR "entire"
 
