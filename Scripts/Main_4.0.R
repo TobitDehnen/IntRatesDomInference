@@ -102,7 +102,7 @@ output_list <- pbmclapply(output_list, function(output_list) { # pbmclapply allo
                             bias_type = output_list$bias_type, # males either aggress all females equally (FALSE) or redirect aggression from breeding to non-breeding females and no. interactions between breeding & non-breeding females is simultaneously halved 
                             steepness = output_list$steepness, # steepness of sigmoidal function: larger numbers create steeper hierarchies via: probability A wins = 1 / (1 + exp(-(rank_diff * steepness)))
                             n_cores = output_list$n_cores, # number of cores to use
-                            for_network_illustration = F # if it's to simply illustrate the network, always allocate the same females as breeders/non-breeders
+                            for_network_illustration = F # if it's to simply illustrate the network, always allocate the same females as breeders/non-breeders for reproducability
   )
   
   ## Real hierarchy positions (intrasexual and group-level)
@@ -116,7 +116,7 @@ output_list <- pbmclapply(output_list, function(output_list) { # pbmclapply allo
   if(output_list$hierarchy_method == "get.Elo") {
     dom <- get.Elo(ints_obs$ints_real) # randomised Elo ratings
   } else if (output_list$hierarchy_method == "get.perc") {
-    dom <- get.perc(ints_obs$ints_real) # Percolation and conductance
+    dom <- get.perc(ints_obs$ints_real) # Percolation and Conductance
   } else if (output_list$hierarchy_method == "get.matrix") {
     dom <- get.matrix(ints_obs$ints_real) # I&SI
   }
@@ -164,7 +164,7 @@ output_list <- pbmclapply(output_list, function(output_list) { # pbmclapply allo
 
 ### POST-RUN PROCESSING ####
 
-# Convert output to long-format
+# Convert output to long-format and return to dataframe format
 output_list <- mclapply(output_list, function(output_list) {
   output_list <- melt(output_list, # the output_list
                       id.vars = colnames(output_list)[-which(colnames(output_list) %in% fem_cats)], # all the variables to keep but not split apart on
@@ -181,7 +181,7 @@ output <- do.call(rbind, output_list)
 output$female_category <- factor(output$female_category, levels = fem_cats)
 output$bias_type <- factor(output$bias_type, levels = bias_cats)
 
-# Interaction-level data
+# Name for saving
 output_name <- paste("n_sims=", n_sims, ",n_males=", n_males, ",n_females=", n_females, ",prop_fem_breeding=", prop_fem_breeding, ",ratio_ints_to_dyad=", 
                      ratio_ints_to_dyad[1], ",", ratio_ints_to_dyad[2], ",", ratio_ints_to_dyad[3], 
                      ",steepness=", steepness, ",dom_comp=", dom_comp, ",hierarchy_method=", hierarchy_method, sep = "")
@@ -196,7 +196,7 @@ save(output, file = here("Outputs", paste(output_name, ".RData", sep = "")))
 
 ### PLOT RESULTS ####
 
-# Save results plot to PDF
+# Save base results plot to PDF (use Publication_plotting_quantiles.R script for more in-depth plots showing distribution quantiles)
 pdf(here("Figures", paste(output_name, ".pdf", sep = "")), height = 5, width = 8) # save
 ggplot(output, aes(result, colour = bias_type, fill = bias_type)) +
   geom_vline(xintercept = 0, colour = "black", linetype = "dashed", linewidth = 1) +
