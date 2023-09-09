@@ -1,7 +1,11 @@
 # Script to:
-# A) Simulate interactions in sex-stratified animal groups with males either equally tolerant of all females or more tolerant of breeding females (redirecting aggression
-# to non-breeding females, which also interact less with breeding females as a consequence of not being tolerated (e.g. as could happen on food patches in real groups))
-# B) Plot the combined effect of interaction rates and inference method on females' inferred vs real hierarchy positions
+# A) Simulate interactions in sex-stratified animal groups with various parameters (group size, sex ratio, proportion of females that breed,
+# hierarchy steepness & number of interactions among MM/MF/FF dyads) and compare breeding and non-breeding females' inferred vs real hierarchy
+# positions, either comparing across the entire hierarchy or simply within females, where the hierarchy is inferred via one of three possible methods.
+# Two scenarios are modelled: Males either equally tolerant of all females, or more tolerant of breeding females (redirecting intersexual aggression 
+# towards non-breeding females, which also interact less with breeding females as a consequence of not being tolerated (as could happen in real 
+# animal groups when tolerated females spatially associate with males (e.g. at food patches in real groups).
+# B) Plot the combined effect of male tolerance scenario and inference method on females' inferred vs real hierarchy positions.
 
 ### SET UP
 
@@ -35,17 +39,17 @@ n_sims <- 500 # positive integer
 # Hierarchy inference method to test:
 hierarchy_method <- "get.perc" # either: randomised Elo scores ("get.Elo"), Percolation and Conductance ("get.perc") or I&SI ("get.matrix")
 
-# Number of males:
+# Number of males
 n_males <- 16 # positive integer
-# Number of females:
+# Number of females
 n_females <- 10 # positive integer
 # Proportion of females assigned as breeding
-prop_fem_breeding <- 0.5 # 0-1
+prop_fem_breeding <- 0.5 # 0-1, when multiplied with n_females must produce integer
 # Number of times each MM, MF and FF dyad interacts in unbiased scenario; in the biased scenario only MF dyads involving non-breeding females interact, and FF dyads
-ratio_ints_to_dyad <- c(24,16,8) # three integers, last one should be an even number (as it's divided by 2 in the biased scenario)
+ratio_ints_to_dyad <- c(12,8,4) # three integers, last one should be an even number (as it's divided by 2 in the biased scenario)
 # steepness of sigmoidal function: larger numbers create steeper hierarchies via: probability A wins = 1 / (1 + exp(-(rank_diff * steepness))): positive number
 steepness <- 1 # positive value 
-# Compare inferred vs real dominance order, among either only females or all group members (as females could be inferred as dominant to some males):
+# Compare inferred vs real dominance order, among either only females or all group members (as females could be inferred as dominant to some males)
 dom_comp <- "female" # "female"  OR "entire"
 
 
@@ -53,9 +57,10 @@ dom_comp <- "female" # "female"  OR "entire"
 ### OTHER PARAMETERS FOR SIMULATION (DO NOT CHANGE)
 
 # Female categories
-fem_cats <- c("Breeding females", "Non-breeding females")
+fem_cats <- c("Breeding females", "Non-breeding females") # do not change
 # Male interaction bias categories
-bias_cats <- c("Males tolerate all females equally", "Males tolerate breeding females only")
+bias_cats <- c("Males tolerate all females equally", "Males tolerate breeding females only") # do not change
+
 
 
 ### MAKE DATAFRAME TO RUN ####
