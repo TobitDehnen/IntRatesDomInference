@@ -175,7 +175,7 @@ plot_E <- ggplot(output_plot_E, aes(result, colour = bias_type, fill = bias_type
   geom_point(aes(x = E_biased_quant[2], y = y_mean_sd_positions[2]), size = 2, colour = "#E69F00", alpha = 0.4) +
   scale_fill_manual(values = c("#56B4E9", "#E69F00"), name = "") +
   scale_colour_manual(values = c("#56B4E9", "#E69F00"), name = "") +
-  labs(x = "Mean Inferred Minus Real Hierarchy Position", y = "Density") +
+  labs(x = "Mean (Inferred Hierarchy Position - Real \nHierarchy Position)", y = "Density") +
   annotate("text", x = ann_pos[1], y = ann_pos[2], angle = 0,
            label = expression(atop(atop(textstyle(bold("Percolation and")), textstyle(bold("Conductance"))), italic("Breeding females"))), size = 3, parse = TRUE) +
   coord_cartesian(clip = "off") +
@@ -204,7 +204,7 @@ plot_F <- ggplot(output_plot_F, aes(result, colour = bias_type, fill = bias_type
   geom_point(aes(x = F_biased_quant[2], y = y_mean_sd_positions[2]), size = 2, colour = "#E69F00", alpha = 0.4) +
   scale_fill_manual(values = c("#56B4E9", "#E69F00"), name = "") +
   scale_colour_manual(values = c("#56B4E9", "#E69F00"), name = "") +
-  labs(x = "Mean Inferred Minus Real Hierarchy Position", y = "") +
+  labs(x = "Mean (Inferred Hierarchy Position - Real \nHierarchy Position)", y = "") +
   annotate("text", x = ann_pos[1], y = ann_pos[2], angle = 0,
            label = expression(atop(atop(textstyle(bold("Percolation and")), textstyle(bold("Conductance"))), italic("Non-breeding females"))), size = 3, parse = TRUE) +
   coord_cartesian(clip = "off") +
