@@ -24,7 +24,7 @@ library(reshape2) # collapsing results (short to long format)
 # Source code
 source(here("Scripts", "Source_4.0.R"))
 
-# Can also load a previously run output if we want to, but don't resave this as the title (using below parameters) may not match the dataset
+# Can also load a previously run output if we want to plot that without running it, but don't resave this as the title (using below parameters) may not match the dataset
 #previous_run <- "n_sims=500,n_males=16,n_females=10,prop_fem_breeding=0.5,ratio_ints_to_dyad=12,8,4,steepness=1,dom_comp=female,hierarchy_method=get.matrix.RData"
 #load(here("Outputs", previous_run))
 
@@ -35,7 +35,7 @@ source(here("Scripts", "Source_4.0.R"))
 # Number of cores to use for running simulations:
 n_cores <- 8 # positive integer
 # Number of simulations to run (recommended at least 100):
-n_sims <- 500 # positive integer
+n_sims <- 1000 # positive integer
 # Hierarchy inference method to test:
 hierarchy_method <- "get.perc" # either: randomised Elo scores ("get.Elo"), Percolation and Conductance ("get.perc") or I&SI ("get.matrix")
 

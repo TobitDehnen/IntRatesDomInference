@@ -39,12 +39,12 @@ get.real.ints <- function(n_males = 16, # Number of males
   ## MM - same irrespective of male-female aggression scenario
   ints_real_MM <- expand.grid(Ind_A = inds$ID[which(inds$sex == "M")], Ind_B = inds$ID[which(inds$sex == "M")]) # get all combinations
   ints_real_MM <- ints_real_MM[-which(ints_real_MM$Ind_A == ints_real_MM$Ind_B),] # remove self-interactions
-  ints_real_MM <- ints_real_MM[rep(seq_len(nrow(ints_real_MM)), times = ratio_ints_to_dyad[1]),] # repeat certain number of times
+  ints_real_MM <- ints_real_MM[rep(seq_len(nrow(ints_real_MM)), times = ratio_ints_to_dyad[1] / 2),] # repeat certain number of times
   
   if(bias_type == "Males tolerate breeding females only") {
     ## MF - with non-breeding only, where aggression is redirected from breeding to non-breeding
     ints_real_MF <- expand.grid(Ind_A = inds$ID[which(inds$sex == "M")], Ind_B = inds$ID[which(inds$sex == "F" & inds$breeding_female == 0)]) # get all combinations
-    ints_real_MF <- ints_real_MF[rep(seq_len(nrow(ints_real_MF)), times = round((ratio_ints_to_dyad[2]) * (1 / prop_fem_breeding)), digits = 0),] # redirected aggression
+    ints_real_MF <- ints_real_MF[rep(seq_len(nrow(ints_real_MF)), times = round((ratio_ints_to_dyad[2]) * (1 / prop_fem_breeding), digits = 0)),] # redirected aggression
     
     ## FF
     # within-categories dyads interact at the same rate as in the unbiased scenario, between-category dyads interact half as much
@@ -56,8 +56,8 @@ get.real.ints <- function(n_males = 16, # Number of males
     # Separate out within- and between-category interactions: within category dyads interact as much as all FF dyads as in unbiased scenario, between category dyads interact half as much
     ints_real_FF_same_category <- ints_real_FF[which(ints_real_FF$Ind_A_status == ints_real_FF$Ind_B_status),] # same category dyads
     ints_real_FF_different_category <- ints_real_FF[which(ints_real_FF$Ind_A_status != ints_real_FF$Ind_B_status),] # opposite category dyads 
-    ints_real_FF_same_category <- ints_real_FF_same_category[rep(seq_len(nrow(ints_real_FF_same_category)), times = ratio_ints_to_dyad[3]),] # same as in unbiased
-    ints_real_FF_different_category <- ints_real_FF_different_category[rep(seq_len(nrow(ints_real_FF_different_category)), times = ratio_ints_to_dyad[3] / 2),] # half as many interactions
+    ints_real_FF_same_category <- ints_real_FF_same_category[rep(seq_len(nrow(ints_real_FF_same_category)), times = ratio_ints_to_dyad[3] / 2),] # same as in unbiased
+    ints_real_FF_different_category <- ints_real_FF_different_category[rep(seq_len(nrow(ints_real_FF_different_category)), times = (ratio_ints_to_dyad[3] / 2) / 2),] # half as many interactions
     
     # Recombine within- and between-category interactions & remove superfluous columns
     ints_real_FF <- rbind(ints_real_FF_same_category,ints_real_FF_different_category )
@@ -70,7 +70,7 @@ get.real.ints <- function(n_males = 16, # Number of males
     ## FF
     ints_real_FF <- expand.grid(Ind_A = inds$ID[which(inds$sex == "F")], Ind_B = inds$ID[which(inds$sex == "F")]) # get all combinations
     ints_real_FF <- ints_real_FF[-which(ints_real_FF$Ind_A == ints_real_FF$Ind_B),] # remove self-interactions
-    ints_real_FF <- ints_real_FF[rep(seq_len(nrow(ints_real_FF)), times = ratio_ints_to_dyad[3]),] # repeat certain number of times
+    ints_real_FF <- ints_real_FF[rep(seq_len(nrow(ints_real_FF)), times = ratio_ints_to_dyad[3] / 2),] # repeat certain number of times
   }
   
   ## Combine, shuffle and reset rownames

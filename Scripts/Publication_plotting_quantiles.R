@@ -25,7 +25,7 @@ y_mean_sd_positions <- c(-0.075, -0.18)
 # Y limits
 y_lims <- c(-0.18,1.8)
 # X limits
-x_lims <- c(-1.4,1.4)
+x_lims <- c(-1.6,1.6)
 # Annotation position
 ann_pos <- c(0.65 * x_lims[2], 0.87 * y_lims[2])
 
@@ -42,7 +42,7 @@ plot_A <- ggplot(output_plot_A, aes(result, colour = bias_type, fill = bias_type
   geom_vline(xintercept = 0, colour = "black", linewidth = 1) +
   geom_density(bw = 0.17, alpha = 0.4, linewidth = 1.2) +
   theme_classic(base_size = 12) +
-  scale_x_continuous(limits = x_lims) +
+  scale_x_continuous(limits = x_lims, breaks = seq(from = (ceiling(x_lims[1] * 2) / 2), to = (ceiling(x_lims[2] * 2) / 2), by = 0.5)) +
   scale_y_continuous(limits = y_lims) +
   geom_segment(aes(x = A_unbiased_quant[1], xend = A_unbiased_quant[3], 
                    y = y_mean_sd_positions[1], yend = y_mean_sd_positions[1]), linewidth = 1, colour = "#56B4E9", lineend = "round", alpha = 0.4) +
@@ -71,7 +71,7 @@ plot_B <- ggplot(output_plot_B, aes(result, colour = bias_type, fill = bias_type
   geom_vline(xintercept = 0, colour = "black", linewidth = 1) +
   geom_density(bw = 0.17, alpha = 0.4, linewidth = 1.2) +
   theme_classic(base_size = 12) +
-  scale_x_continuous(limits = x_lims) +
+  scale_x_continuous(limits = x_lims, breaks = seq(from = (ceiling(x_lims[1] * 2) / 2), to = (ceiling(x_lims[2] * 2) / 2), by = 0.5)) +
   scale_y_continuous(limits = y_lims) +
   geom_segment(aes(x = B_unbiased_quant[1], xend = B_unbiased_quant[3], 
                    y = y_mean_sd_positions[1], yend = y_mean_sd_positions[1]), linewidth = 1, colour = "#56B4E9", lineend = "round", alpha = 0.4) +
@@ -104,7 +104,7 @@ plot_C <- ggplot(output_plot_C, aes(result, colour = bias_type, fill = bias_type
   geom_vline(xintercept = 0, colour = "black", linewidth = 1) +
   geom_density(bw = 0.17, alpha = 0.4, linewidth = 1.2) +
   theme_classic(base_size = 12) +
-  scale_x_continuous(limits = x_lims) +
+  scale_x_continuous(limits = x_lims, breaks = seq(from = (ceiling(x_lims[1] * 2) / 2), to = (ceiling(x_lims[2] * 2) / 2), by = 0.5)) +
   scale_y_continuous(limits = y_lims) +
   geom_segment(aes(x = C_unbiased_quant[1], xend = C_unbiased_quant[3], 
                    y = y_mean_sd_positions[1], yend = y_mean_sd_positions[1]), linewidth = 1, colour = "#56B4E9", lineend = "round", alpha = 0.4) +
@@ -133,7 +133,7 @@ plot_D <- ggplot(output_plot_D, aes(result, colour = bias_type, fill = bias_type
   geom_vline(xintercept = 0, colour = "black", linewidth = 1) +
   geom_density(bw = 0.17, alpha = 0.4, linewidth = 1.2) +
   theme_classic(base_size = 12) +
-  scale_x_continuous(limits = x_lims) +
+  scale_x_continuous(limits = x_lims, breaks = seq(from = (ceiling(x_lims[1] * 2) / 2), to = (ceiling(x_lims[2] * 2) / 2), by = 0.5)) +
   scale_y_continuous(limits = y_lims) +
   geom_segment(aes(x = D_unbiased_quant[1], xend = D_unbiased_quant[3], 
                    y = y_mean_sd_positions[1], yend = y_mean_sd_positions[1]), linewidth = 1, colour = "#56B4E9", lineend = "round", alpha = 0.4) +
@@ -165,7 +165,7 @@ plot_E <- ggplot(output_plot_E, aes(result, colour = bias_type, fill = bias_type
   geom_vline(xintercept = 0, colour = "black", linewidth = 1) +
   geom_density(bw = 0.17, alpha = 0.4, linewidth = 1.2) +
   theme_classic(base_size = 12) +
-  scale_x_continuous(limits = x_lims) +
+  scale_x_continuous(limits = x_lims, breaks = seq(from = (ceiling(x_lims[1] * 2) / 2), to = (ceiling(x_lims[2] * 2) / 2), by = 0.5)) +
   scale_y_continuous(limits = y_lims) +
   geom_segment(aes(x = E_unbiased_quant[1], xend = E_unbiased_quant[3], 
                    y = y_mean_sd_positions[1], yend = y_mean_sd_positions[1]), linewidth = 1, colour = "#56B4E9", lineend = "round", alpha = 0.4) +
@@ -194,7 +194,7 @@ plot_F <- ggplot(output_plot_F, aes(result, colour = bias_type, fill = bias_type
   geom_vline(xintercept = 0, colour = "black", linewidth = 1) +
   geom_density(bw = 0.17, alpha = 0.4, linewidth = 1.2) +
   theme_classic(base_size = 12) +
-  scale_x_continuous(limits = x_lims) +
+  scale_x_continuous(limits = x_lims, breaks = seq(from = (ceiling(x_lims[1] * 2) / 2), to = (ceiling(x_lims[2] * 2) / 2), by = 0.5)) +
   scale_y_continuous(limits = y_lims) +
   geom_segment(aes(x = F_unbiased_quant[1], xend = F_unbiased_quant[3], 
                    y = y_mean_sd_positions[1], yend = y_mean_sd_positions[1]), linewidth = 1, colour = "#56B4E9", lineend = "round", alpha = 0.4) +
@@ -247,3 +247,4 @@ pdf(here("Figures", "Combined_ELO_PERC_ISI_results_quantiles_dom_comp=female.pdf
 # Combine the multi-plot and the legend
 plot_grid(combined_plots, NULL, legend, ncol = 1, rel_heights = c(1, 0.01, .05))
 dev.off() # finish
+

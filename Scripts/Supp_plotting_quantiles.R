@@ -25,7 +25,7 @@ y_mean_sd_positions <- c(-0.075, -0.18)
 # Y limits
 y_lims <- c(-0.18,1.8)
 # X limits
-x_lims <- c(-1.4,12)
+x_lims <- c(-2,12)
 # Annotation position
 ann_pos <- c(0.65 * x_lims[2], 0.87 * y_lims[2])
 
